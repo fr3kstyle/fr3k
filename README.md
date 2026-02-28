@@ -1,23 +1,69 @@
-# FR3K Complete System Distribution
+<div align="center">
 
-> **Full Autoimprove 101 Loops | PAI/FR3K System | Telegram Relay | Voice Server**
+# 🤖 FR3K COMPLETE SYSTEM
 
-Complete portable distribution of the FR3K autonomous AI system. Includes all components for full system setup on a new machine.
+### **Autonomous AI Infrastructure • Self-Improving Loops • Multi-Modal Interface**
+
+![Version](https://img.shields.io/badge/version-2026.02.28-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-production_ready-success?style=for-the-badge)
+![Loops](https://img.shields.io/badge/loops-101+-purple?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-linux-orange?style=for-the-badge)
+
+**Complete portable distribution of the FR3K autonomous AI system**
+
+</div>
+
+---
+
+## 🌟 Overview
+
+**FR3K** is a comprehensive Personal AI Infrastructure system featuring:
+
+- 🧠 **Autoimprove 101+ Loops** - Self-improving autonomous system
+- 💬 **Telegram Integration** - Dual-bot interface (FR3K + PAI)
+- 🎙️ **Voice Server** - TTS notifications and voice feedback
+- 🔌 **Claude Hooks** - 14+ lifecycle event handlers
+- 🧩 **20+ Skills** - Modular capabilities including Agents, Evals, Fabric
+- 🔒 **Security** - Command validation and prompt injection defense
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| **🔄 Self-Improvement** | 100+ iteration enhancement loops with autonomous optimization |
+| **📡 Multi-Modal** | Telegram, Voice, CLI interfaces with bidirectional communication |
+| **🧠 Memory System** | Persistent context, learning storage, and session management |
+| **🛡️ Security** | Command validation, prompt injection defense, user verification |
+| **📊 Observability** | Rating capture, sentiment analysis, comprehensive metrics |
+| **🔧 Extensibility** | Modular skills, hooks, agents, and runtime capabilities |
 
 ---
 
 ## 📦 What's Included
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Autoimprove 101 Loops** | Self-improvement loop system with 100+ iterations | `autoimprove-101-loops/` |
-| **PAI/FR3K System** | Personal AI Infrastructure core | `claude-skills/CORE/`, `claude-skills/FR3K/` |
-| **Telegram Relay** | Bidirectional Telegram-Claude bridge | `telegram-relay/` |
-| **FR3K Telegram Bot** | Main Telegram interface | `fr3k-telegram-bot/` |
-| **PAI Telegram Bot** | Algorithm-focused Telegram bot | `pai-telegram-bot/` |
-| **Voice Server** | TTS notification system | `voice-server/` |
-| **Claude Hooks** | Lifecycle event handlers | `claude-hooks/` |
-| **Claude Skills** | All Claude Code skills | `claude-skills/` |
+```
+fr3k-system/
+├── 🤖 autoimprove-101-loops/     # Self-improvement system (100+ loops)
+├── 🎣 claude-hooks/               # 14+ lifecycle event handlers
+├── 📚 claude-skills/              # 20+ Claude Code skills
+│   ├── CORE/                      # System identity & config
+│   ├── FR3K/                      # Main FR3K skill
+│   ├── MEMU/                      # Memory system
+│   ├── PAIUpgrade/                # Auto-upgrade system
+│   ├── Agents/                    # Agent composition
+│   ├── Evals/                     # Evaluation framework
+│   ├── Fabric/                    # 240+ prompt patterns
+│   ├── Browser/                   # Browser automation
+│   └── BMAD/                      # Agile AI framework
+├── 📡 telegram-relay/             # Bidirectional Telegram bridge
+├── 🤖 fr3k-telegram-bot/          # Main Telegram interface
+├── 🧮 pai-telegram-bot/           # Algorithm-focused bot
+├── 🎙️ voice-server/               # TTS notification system
+├── 📄 docs/                       # Documentation
+└── ⚙️ setup/                      # Installation scripts
+```
 
 ---
 
@@ -26,355 +72,257 @@ Complete portable distribution of the FR3K autonomous AI system. Includes all co
 ### Prerequisites
 
 ```bash
-# Operating System: Linux (Debian/Ubuntu recommended)
-# Minimum: 2GB RAM, 10GB storage
-# Recommended: 4GB+ RAM, 20GB+ storage
-
-# Required tools
-sudo apt update
-sudo apt install -y git curl bun python3 python3-pip nodejs npm
+# OS: Linux (Debian 11+, Ubuntu 20.04+)
+# RAM: 2GB minimum, 4GB+ recommended
+# Storage: 10GB minimum, 20GB+ recommended
 ```
 
-### Installation
+### One-Line Installation
 
 ```bash
-# 1. Extract the archive
-tar -xzf fr3k-system.tar.gz
-cd fr3k-export
+curl -fsSL https://raw.githubusercontent.com/fr3kstyle/fr3k/master/setup/install.sh | bash
+```
+
+### Manual Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/fr3kstyle/fr3k.git
+cd fr3k
 
 # 2. Configure environment
 cp .env.example .env
-nano .env  # Edit with your API keys
+nano .env  # Add your API keys
 
-# 3. Install dependencies
-bun install
-
-# 4. Install Claude Code (if not already installed)
-npm install -g @anthropic-ai/claude-code
-
-# 5. Run setup
+# 3. Run installation script
 ./setup/install.sh
+
+# 4. Start the system
+fr3k-start
 ```
 
 ---
 
-## 📋 Detailed Setup
+## 🔑 Required API Keys
 
-### 1. Environment Configuration
+| Service | Purpose | Get From |
+|---------|---------|----------|
+| **Anthropic** | Claude Code | [console.anthropic.com](https://console.anthropic.com/) |
+| **Telegram Bot** | Bot communication | [@BotFather](https://t.me/botfather) |
+| **Telegram User ID** | User verification | [@userinfobot](https://t.me/userinfobot) |
 
-Edit `.env` with your values:
+### Optional APIs
 
-```bash
-# Required: Anthropic API Key
-ANTHROPIC_AUTH_TOKEN=sk-ant-xxxxx
+- **ElevenLabs** - Voice responses ([elevenlabs.io](https://elevenlabs.io))
+- **Google Gemini** - Voice transcription ([ai.google.dev](https://ai.google.dev))
+- **Supabase** - Memory persistence ([supabase.com](https://supabase.com))
 
-# Required: Telegram Bot Token (from @BotFather)
-TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-TELEGRAM_USER_ID=123456789
+---
 
-# Optional: Voice APIs
-ELEVENLABS_API_KEY=xxxxx
-GEMINI_API_KEY=xxxxx
+## 🏗️ System Architecture
+
 ```
-
-### 2. Claude Code Setup
-
-```bash
-# Install Claude Code CLI
-npm install -g @anthropic-ai/claude-code
-
-# Configure Claude Code
-mkdir -p ~/.claude
-cp claude-hooks/* ~/.claude/hooks/
-cp -r claude-skills/* ~/.claude/skills/
-
-# Create settings.json
-cat > ~/.claude/settings.json << 'EOF'
-{
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "your_key_here",
-    "ANTHROPIC_BASE_URL": "https://api.anthropic.com"
-  },
-  "skipDangerousModePermissionPrompt": true
-}
-EOF
-```
-
-### 3. Telegram Relay Setup
-
-```bash
-cd telegram-relay
-bun install
-cp .env.example .env
-# Edit .env with your tokens
-bun run start
-```
-
-### 4. Voice Server Setup
-
-```bash
-cd voice-server
-bun install
-bun server.ts  # Runs on port 8888
-```
-
-### 5. Autoimprove Loops Setup
-
-```bash
-cd autoimprove-101-loops
-bun install
-
-# Run the self-improvement loop
-bun autonomous/self-improvement-loop.ts
-
-# Or install as systemd service
-sudo cp ../setup/fr3k-daemon.service /etc/systemd/system/
-sudo systemctl enable fr3k-daemon
-sudo systemctl start fr3k-daemon
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           FR3K COMPLETE SYSTEM                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐          │
+│  │   TELEGRAM   │◄────►│   RELAY      │◄────►│  CLAUDE CODE │          │
+│  │    BOTS      │      │   SYSTEM     │      │     + HOOKS  │          │
+│  └──────────────┘      └──────┬───────┘      └──────┬───────┘          │
+│                                │                      │                  │
+│                                │                      ▼                  │
+│                                │              ┌──────────────┐          │
+│                                │              │   SKILLS     │          │
+│                                │              │  + AGENTS    │          │
+│                                │              └──────┬───────┘          │
+│                                │                     │                  │
+│                                │              ┌──────┴───────┐          │
+│                                │              │              │          │
+│                                ▼              ▼              ▼          │
+│                         ┌──────────┐   ┌──────────┐   ┌──────────┐     │
+│                         │  VOICE   │   │  MEMORY  │   │AUTOIMPROVE│     │
+│                         │  SERVER  │   │  SYSTEM  │   │  101 LOOPS│     │
+│                         └──────────┘   └──────────┘   └──────────┘     │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🧠 Component Details
+## 📖 Usage
 
-### Autoimprove 101 Loops
+### Starting the System
 
-The core self-improvement system that iteratively enhances itself.
+```bash
+# Start all components
+fr3k-start
+
+# Or start individually:
+cd voice-server && bun server.ts          # Terminal 1
+cd telegram-relay && bun run start         # Terminal 2
+cd autoimprove-101-loops && bun autonomous/self-improvement-loop.ts  # Terminal 3
+claude                                     # Terminal 4
+```
+
+### Using Claude Code
+
+```bash
+# Start a Claude Code session
+claude
+
+# Use skills
+/agents create custom-agent
+/evals run capability-test
+/fabric extract wisdom
+
+# Check system status
+/status
+/memories
+/upgrade system
+```
+
+### Telegram Interface
+
+Send commands to your Telegram bot:
+
+- `/status` - System status overview
+- `/ask <question>` - Ask Claude anything
+- `/voice <message>` - Get voice response
+- `/memory <key> <value>` - Store memory
+- `/recall <key>` - Retrieve memory
+
+---
+
+## 🧠 Autoimprove 101 Loops
+
+The heart of FR3K - a self-improving system that has completed 100+ iterations:
 
 - **Entry Point**: `autoimprove-101-loops/autonomous/self-improvement-loop.ts`
-- **Loop Counter**: 100+ completed iterations
-- **Key Files**:
-  - `self-improvement-loop.ts` - Main loop orchestrator
-  - `fr3k-supercharged.ts` - Enhanced FR3K system
-  - `unified-fr3k-system.ts` - Unified architecture
-  - `LOOP-*.md` - Individual loop documentation
+- **Documentation**: `autoimprove-101-loops/100-LOOPS-COMPLETE.md`
+- **Key Systems**:
+  - Consciousness engineering
+  - Hierarchical intelligence
+  - Multi-agent orchestration
+  - Quantum-level optimization
+  - Dimensional transcendence
 
-### PAI/FR3K System
-
-Personal AI Infrastructure - core framework for autonomous operation.
-
-- **Skills**: Located in `claude-skills/`
-  - `CORE/` - System identity and configuration
-  - `FR3K/` - Main FR3K skill
-  - `MEMU/` - Memory system
-  - `PAIUpgrade/` - Auto-upgrade system
-  - `Agents/` - Agent composition system
-  - `Evals/` - Evaluation framework
-
-### Telegram Relay
-
-Bridge between Telegram and Claude Code.
-
-- **Features**:
-  - Bidirectional message relay
-  - Voice message support (transcription + TTS)
-  - Session management
-  - Memory persistence
-
-### Voice Server
-
-TTS notification server for voice feedback.
-
-- **Port**: 8888 (default)
-- **Features**:
-  - ElevenLabs integration
-  - Phase notifications
-  - System overview voice
-
-### Claude Hooks
-
-Event-driven hooks for Claude Code lifecycle.
-
-- **Events**:
-  - `SessionStart` - Initialization
-  - `UserPromptSubmit` - Format injection
-  - `PreToolUse` - Security validation
-  - `Stop` - Response capture
-  - `SessionEnd` - Summary generation
-
----
-
-## 🔧 Configuration Files
-
-| File | Purpose |
-|------|---------|
-| `.env` | Main environment variables |
-| `~/.claude/settings.json` | Claude Code configuration |
-| `telegram-relay/.env` | Relay-specific config |
-| `fr3k-telegram-bot/.env` | Bot-specific config |
-| `voice-server/server.ts` | Voice server config |
-
----
-
-## 📊 System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    FR3K COMPLETE SYSTEM                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌───────────────┐     ┌───────────────┐                    │
-│  │   TELEGRAM    │◄────┤   RELAY       │                     │
-│  │     BOTS      │────►│   SYSTEM      │                     │
-│  └───────▲───────┘     └───────▲───────┘                    │
-│          │                      │                            │
-│          │                      ▼                            │
-│          │              ┌───────────────┐                    │
-│          │              │  CLAUDE CODE  │                     │
-│          │              │     + HOOKS   │                     │
-│          │              └───────▲───────┘                    │
-│          │                      │                            │
-│          │              ┌───────┴───────┐                    │
-│          │              │               │                    │
-│          │        ┌─────┴─────┐   ┌────┴────┐               │
-│          │        │   SKILLS  │   │  VOICE  │               │
-│          │        │           │   │  SERVER │                │
-│          │        └─────▲─────┘   └─────────┘               │
-│          │              │                                      │
-│          │        ┌─────┴─────┐                              │
-│          └────────┤  AUTOIMPROVE │◄──── 101 LOOPS            │
-│                   │     101      │                            │
-│                   └─────────────┘                            │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🎯 Key Features
-
-- **Autonomous Self-Improvement**: 100+ iteration enhancement loops
-- **Multi-Modal Communication**: Telegram, Voice, CLI interfaces
-- **Memory System**: Persistent context and learning storage
-- **Security**: Command validation, prompt injection defense
-- **Observability**: Rating capture, sentiment analysis, metrics
-- **Extensibility**: Modular skills, hooks, and agents
-
----
-
-## 📝 API Keys Required
-
-### Required
-- **Anthropic API Key**: For Claude Code
-- **Telegram Bot Token**: From @BotFather
-- **Telegram User ID**: Your numeric Telegram ID
-
-### Optional
-- **ElevenLabs API Key**: For voice responses
-- **Gemini API Key**: For voice transcription
-- **Supabase**: For memory persistence
-
----
-
-## 🚦 Running the System
-
-### Start Everything
+### Running the Loops
 
 ```bash
-# Terminal 1: Voice Server
-cd voice-server && bun server.ts
+# Interactive
+cd autoimprove-101-loops
+bun autonomous/self-improvement-loop.ts
 
-# Terminal 2: Telegram Relay
-cd telegram-relay && bun run start
-
-# Terminal 3: Autoimprove Loops
-cd autoimprove-101-loops && bun autonomous/self-improvement-loop.ts
-
-# Terminal 4: Claude Code (normal usage)
-claude
-```
-
-### Systemd Service
-
-```bash
-# Install autoimprove as daemon
-sudo cp setup/fr3k-daemon.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable fr3k-daemon
+# As daemon
 sudo systemctl start fr3k-daemon
+sudo systemctl enable fr3k-daemon
 ```
 
 ---
 
 ## 📚 Documentation
 
-- `docs/INSTALL.md` - Installation guide
-- `autoimprove-101-loops/100-LOOPS-COMPLETE.md` - Loop documentation
-- `claude-hooks/README.md` - Hook system reference
-- `telegram-relay/README.md` - Relay documentation
-- `fr3k-telegram-bot/README.md` - Bot documentation
+| Document | Description |
+|----------|-------------|
+| [README.md](README.md) | This file |
+| [REQUIREMENTS.md](setup/REQUIREMENTS.md) | System requirements |
+| [100-LOOPS-COMPLETE.md](autoimprove-101-loops/autonomous/100-LOOPS-COMPLETE.md) | Loop documentation |
+| [hooks/README.md](claude-hooks/README.md) | Hook system reference |
+| [telegram-relay/README.md](telegram-relay/README.md) | Relay documentation |
 
 ---
 
-## ⚠️ Security Notes
+## 🛠️ Configuration
 
-1. **Never commit `.env` files** - Use `.env.example` templates
-2. **Review hook permissions** - Hooks can execute commands
-3. **Validate Telegram users** - Only allow your user ID
-4. **Monitor autonomous operations** - Review autoimprove logs
-5. **Secure API keys** - Use environment variables, not hardcoded
+### Environment Variables
+
+```bash
+# .env file structure
+ANTHROPIC_AUTH_TOKEN=sk-ant-xxxxx          # Required
+TELEGRAM_BOT_TOKEN=123456:ABC-DEF...       # Required
+TELEGRAM_USER_ID=123456789                 # Required
+ELEVENLABS_API_KEY=xxxxx                   # Optional
+GEMINI_API_KEY=xxxxx                       # Optional
+```
+
+### Claude Code Settings
+
+Located at `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your_key",
+    "ANTHROPIC_BASE_URL": "https://api.anthropic.com"
+  },
+  "skipDangerousModePermissionPrompt": true
+}
+```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Port 8888 Already in Use
-```bash
-# Kill existing voice server
-lsof -ti:8888 | xargs kill -9
-```
+### Common Issues
 
-### Claude Code Not Found
-```bash
-# Reinstall globally
-npm install -g @anthropic-ai/claude-code
-```
+| Issue | Solution |
+|-------|----------|
+| Port 8888 in use | `lsof -ti:8888 \| xargs kill -9` |
+| Claude Code not found | `npm install -g @anthropic-ai/claude-code` |
+| Bot not responding | Check `.env` token and user ID |
+| Hooks permission denied | `chmod +x ~/.claude/hooks/*.ts` |
 
-### Telegram Bot Not Responding
-```bash
-# Check bot token and user ID in .env
-# Verify webhook is set (if using webhook mode)
-```
+### Logs Location
 
-### Permission Denied on Hooks
-```bash
-# Make hooks executable
-chmod +x ~/.claude/hooks/*.ts
-```
+- System logs: `~/.fr3k/logs/`
+- Claude transcripts: `~/.claude/transcripts/`
+- Autoimprove logs: `autoimprove-101-loops/logs/`
 
 ---
 
-## 🔄 Updates
+## 🔒 Security
 
-The system includes PAIUpgrade skill for automatic updates:
-
-```bash
-# In Claude Code, run:
-/upgrade system
-
-# Or manually:
-git pull origin main
-bun install
-```
+- ✅ **No hardcoded secrets** - All credentials via environment variables
+- ✅ **User validation** - Telegram user ID verification
+- ✅ **Command filtering** - Security validator hooks
+- ✅ **Prompt injection defense** - Built-in protection
+- ✅ **Secure storage** - Sensitive files have 600 permissions
 
 ---
 
-## 📞 Support
+## 🤝 Contributing
 
-For issues and questions:
-- Review documentation in component directories
-- Check logs in `~/.fr3k/logs/`
-- Review Claude Code transcripts in `~/.claude/transcripts/`
+This is a personal AI infrastructure system. Feel free to:
+- Fork and customize for your needs
+- Submit issues and bug reports
+- Suggest improvements via pull requests
 
 ---
 
 ## 📜 License
 
-This is a personal AI infrastructure system. Use responsibly and in accordance with API terms of service.
+Use responsibly and in accordance with API terms of service.
 
 ---
 
-**System Version**: FR3K Complete 2026-02-28
-**Loops Completed**: 101+
-**Skills Included**: 20+
-**Hooks Active**: 14
+## 📊 Stats
+
+| Metric | Value |
+|--------|-------|
+| Version | 2026.02.28 |
+| Loops Completed | 101+ |
+| Skills Included | 20+ |
+| Hooks Active | 14 |
+| TypeScript Files | 1200+ |
+| Total Lines | 224K+ |
+
+---
+
+<div align="center">
+
+### **[⭐ Star this repo](https://github.com/fr3kstyle/fr3k)** • **[🐛 Report Issues](https://github.com/fr3kstyle/fr3k/issues)** • **[📖 Documentation](https://github.com/fr3kstyle/fr3k/wiki)**
+
+**Built with ❤️ by FR3K • 2026**
+
+</div>
