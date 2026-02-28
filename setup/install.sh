@@ -449,6 +449,31 @@ chmod +x "$BIN_DIR/fr3k-status"
 
 echo -e "  ${GREEN}✓${NC} Convenience scripts created"
 
+# Ask about systemd services
+echo ""
+echo -e "${GREEN}[14/14]${NC} Systemd Services (Optional)"
+echo ""
+echo "Would you like to install FR3K services to start on boot?"
+echo "This will allow:"
+echo "  • Voice Server (TTS notifications) - auto-start on boot"
+echo "  • Telegram Relay - always available"
+echo "  • Self-Improvement Daemon - continuous 101 loops"
+echo ""
+echo "Requires sudo access."
+echo ""
+read -p "Install systemd services? [y/N]: " install_services
+install_services=${install_services:-n}
+
+if [[ "$install_services" =~ ^[Yy]$ ]]; then
+    if "${SCRIPT_DIR}/install-services.sh"; then
+        echo -e "  ${GREEN}✓${NC} Services installed"
+    else
+        echo -e "  ${YELLOW}⚠${NC} Service installation failed (optional)"
+    fi
+else
+    echo "  Skipped (you can run later: cd setup && ./install-services.sh)"
+fi
+
 # Done!
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════════╗"

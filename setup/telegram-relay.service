@@ -1,0 +1,33 @@
+[Unit]
+Description=FR3K Telegram Relay Bot
+After=network.target voice-server.service
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+WorkingDirectory=INSTALL_DIR/telegram-relay
+ExecStart=/usr/bin/bun run src/relay.ts
+Restart=always
+RestartSec=10
+EnvironmentFile=INSTALL_DIR/.env
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fr3k-telegram-relay
+
+[Install]
+WantedBy=multi-user.target
+
+# INSTALLATION NOTES:
+# 1. Replace YOUR_USERNAME with your actual username
+# 2. Replace INSTALL_DIR with the full path to fr3k-export
+# 3. Copy to: /etc/systemd/system/fr3k-telegram-relay.service
+# 4. Enable with: sudo systemctl enable fr3k-telegram-relay
+# 5. Start with: sudo systemctl start fr3k-telegram-relay
+# 6. Check status: sudo systemctl status fr3k-telegram-relay
+# 7. View logs: sudo journalctl -u fr3k-telegram-relay -f

@@ -5,12 +5,13 @@
 ### **Multi-CLI Autonomous AI Infrastructure • 4 MCP Servers • 101 Self-Improvement Loops**
 
 ![Version](https://img.shields.io/badge/version-2026.02.28-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/status-multi_cli-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-world_first_autonomous-success?style=for-the-badge)
 ![CLIs](https://img.shields.io/badge/CLIs-3-purple?style=for-the-badge)
-![MCP](https://img.shields.io/badge/MCP-4_servers-orange?style=for-the-badge)
-![Platform](https://img.shields.io/badge/platform-linux-green?style=for-the-badge)
+![MCP](https://img.shields.io/badge/MCP-4_integrated-orange?style=for-the-badge)
+![Loops](https://img.shields.io/badge/loops-101_autonomous-green?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-linux-blue?style=for-the-badge)
 
-**Complete integrated autonomous AI system supporting Claude Code, OpenCode, and Gemini CLI with unified MCP backend**
+**World's First Autonomous Multi-CLI AI Infrastructure with 4 integrated MCP servers, 101 self-improvement loops, and boot-time autonomous services**
 
 </div>
 
@@ -154,6 +155,69 @@ claude      # If you chose Claude Code
 opencode    # If you chose OpenCode
 gemini      # If you chose Gemini CLI
 ```
+
+---
+
+## 🤖 AI Agent Quick-Start
+
+**Copy this prompt to any AI agent to immediately utilize the full FR3K system:**
+
+---
+
+**FR3K System Activation Prompt:**
+
+You are now operating within the FR3K Unified Autonomous AI System. This system integrates:
+
+**Available Capabilities:**
+- **4 MCP Servers:** md-mcp (tool creation), fr3k-think (structured analysis), unified-pantheon-mcp (self-improvement), hey-fr3k (semantic memory)
+- **101 Self-Improvement Loops:** Continuous autonomous optimization running in background
+- **7-Phase Algorithm:** OBSERVE → THINK → PLAN → BUILD → EXECUTE → VERIFY → LEARN
+- **Multi-Modal Notifications:** Voice (port 8888) + Telegram (real-time updates)
+- **20+ Skills:** Agents, Evals, Fabric (240+ patterns), Browser automation, BMAD framework
+- **Auto-Improvement:** System uses MCP servers to optimize itself continuously
+
+**How to Use This System:**
+
+1. **For Context Retrieval:**
+   - Ask: "Recall context about [topic]" (uses hey-fr3k MCP server)
+   - Ask: "What have we learned about [feature]?" (semantic memory search)
+
+2. **For Structured Analysis:**
+   - Ask: "Think through [problem] step by step" (uses fr3k-think MCP server)
+   - Ask: "Investigate [topic] deeply" (investigation mode)
+
+3. **For Self-Improvement:**
+   - Ask: "How can I improve my workflow?" (uses pantheon MCP server)
+   - Ask: "Analyze this session for optimization opportunities" (demon-angel TAS analysis)
+
+4. **For Tool Creation:**
+   - Ask: "Create a tool called [name] that does [X]" (uses md-mcp MCP server)
+   - Ask: "Generate a custom tool for [specific task]"
+
+5. **For Memory Storage:**
+   - Ask: "Store this decision: [decision reasoning]" (persists to hey-fr3k)
+   - Ask: "Remember this pattern: [pattern description]" (semantic memory)
+
+**7-Phase Algorithm Usage:**
+- Say "Run the 7-phase algorithm on: [task]"
+- Each phase will:
+  - OBSERVE: Retrieve context via hey-fr3k
+  - THINK: Analyze via fr3k-think
+  - PLAN: Store decisions via hey-fr3k
+  - BUILD: Create tools via md-mcp if needed
+  - EXECUTE: Implement the solution
+  - VERIFY: Test and validate
+  - LEARN: Store learnings + trigger self-improvement via pantheon
+
+**Voice Notifications Enabled:** You'll hear phase completions and important events.
+
+**Telegram Integration:** Send /status, /ask, /memory commands to your bot.
+
+**System Status:** Check with `fr3k-status` command.
+
+**Your task:** [Describe what you want to accomplish]
+
+The system will now use all MCP servers, self-improvement loops, and notifications to complete your task autonomously.
 
 ---
 
