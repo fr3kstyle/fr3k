@@ -1,0 +1,54 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "task": "Evidence enforcement hook returns zero violations",
+      "requirements": "Verify evidence enforcement hook is active and returns zero compliance violations",
+      "files": "evidence-hook.ts, compliance-log.json",
+      "expected_results": "Hook executes and reports 0 violations",
+      "status": "pending",
+      "scope": "feature",
+      "created_at": "2026-02-24T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "task": "Compliance metrics database contains cycle four data",
+      "requirements": "Query compliance metrics database and verify Cycle 4 data exists",
+      "files": "compliance-metrics.db",
+      "expected_results": "Cycle 4 record found in database",
+      "status": "pending",
+      "scope": "feature",
+      "created_at": "2026-02-24T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "task": "QATester auto-prompt generated this session",
+      "requirements": "Check session logs for QATester auto-prompt generation",
+      "files": "session-logs.json",
+      "expected_results": "QATester prompt found in current session logs",
+      "status": "pending",
+      "scope": "feature",
+      "created_at": "2026-02-24T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "task": "Documentation count equals nineteen cycles",
+      "requirements": "Count improvement cycle directories in documentation",
+      "files": "improvement-cycles/",
+      "expected_results": "Exactly 19 cycle directories exist",
+      "status": "pending",
+      "scope": "feature",
+      "created_at": "2026-02-24T00:00:00Z"
+    },
+    {
+      "id": 5,
+      "task": "TaskUpdate enforcement rate at one hundred percent",
+      "requirements": "Check TaskUpdate enforcement logs for 100% compliance rate",
+      "files": "taskupdate-enforcement.log",
+      "expected_results": "Enforcement rate equals 100%",
+      "status": "pending",
+      "scope": "feature",
+      "created_at": "2026-02-24T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "name": "Capability Router",
+  "description": "Auto-activating orchestration layer for FR3K capabilities",
+  "components": {
+    "TaskAnalyzer": {
+      "purpose": "Analyze incoming task characteristics",
+      "metrics": ["complexity", "novelty", "uncertainty", "dependencies"],
+      "thresholds": {
+        "high_complexity": 0.7,
+        "high_novelty": 0.6,
+        "high_uncertainty": 0.5
+      }
+    },
+    "CapabilitySelector": {
+      "purpose": "Route to appropriate reasoning strategy",
+      "strategies": {
+        "self_discover": {
+          "trigger": "novel + complex task",
+          "modules": ["break-steps", "critical-thinking", "examples", "edge-cases", "patterns", "work-backwards", "constraints", "perspectives", "consistency", "simplify"],
+          "improvement": "32%"
+        },
+        "tree_of_thought": {
+          "trigger": "multiple viable approaches",
+          "branches": 3,
+          "selection": "best path before committing"
+        },
+        "hierarchical": {
+          "trigger": "multi-step complex goal",
+          "specialists": ["database", "api", "auth", "testing", "frontend", "backend"],
+          "speedup": "3x"
+        },
+        "direct": {
+          "trigger": "simple, well-understood task",
+          "overhead": "minimal"
+        }
+      }
+    },
+    "ReflectionEngine": {
+      "purpose": "Automated quality critique",
+      "metrics": ["correctness", "efficiency", "security", "completeness", "clarity"],
+      "iterations": 3,
+      "threshold": 0.85,
+      "improvement": "40% error reduction"
+    },
+    "EpisodicStore": {
+      "purpose": "Vector-based experience retrieval",
+      "storage": "/mnt/sdcard/claude-integrations/runtime/memory/",
+      "structure": "task → approach → outcome → lessons",
+      "retrieval": "top-k semantic similarity before new tasks",
+      "improvement": "50% reduction in repeated mistakes"
+    }
+  },
+  "workflow": [
+    "1. Receive task",
+    "2. TaskAnalyzer analyzes characteristics",
+    "3. EpisodicStore retrieves relevant past experiences",
+    "4. CapabilitySelector selects strategy",
+    "5. Execute with selected capability",
+    "6. ReflectionEngine critiques output",
+    "7. EpisodicStore stores experience",
+    "8. Return refined result"
+  ],
+  "performance_targets": {
+    "reasoning_improvement": "32%",
+    "error_reduction": "40%",
+    "parallel_speedup": "3x",
+    "repeated_mistakes_reduction": "50%",
+    "activation_accuracy": "95%"
+  }
+}

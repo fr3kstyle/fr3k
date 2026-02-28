@@ -1,0 +1,850 @@
+#!/usr/bin/env bun
+/**
+ * Voice Server - Personal AI Voice notification server using ElevenLabs TTS
+ */
+
+import { serve } from "bun";
+import { spawn } from "child_process";
+import { homedir } from "os";
+import { join } from "path";
+import { existsSync, readFileSync } from "fs";
+
+// Load .env from ~/.claude/.env or ~/.env
+const envPaths = [join(homedir(), '.claude', '.env'), join(homedir(), '.env')];
+for (const envPath of envPaths) {
+  if (existsSync(envPath)) {
+    const envContent = await Bun.file(envPath).text();
+    envContent.split('\n').forEach(line => {
+      const eqIndex = line.indexOf('=');
+      if (eqIndex === -1) return;
+      const key = line.slice(0, eqIndex).trim();
+      let value = line.slice(eqIndex + 1).trim();
+      // Strip surrounding quotes (single or double)
+      if ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+      if (key && value && !key.startsWith('#')) {
+        process.env[key] = value;
+      }
+    });
+    console.log(`Loaded environment from ${envPath}`);
+    break;
+  }
+}
+
+const PORT = parseInt(process.env.PORT || "8888");
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+if (!ELEVENLABS_API_KEY) {
+  console.warn('Warning: ELEVENLABS_API_KEY not found in ~/.env');
+  console.warn('Voice notifications will be disabled without API key');
+  console.warn('Add: ELEVENLABS_API_KEY=your_key_here to ~/.env');
+}
+
+// Load settings.json for DA identity and default voice
+let daVoiceId: string | null = null;
+let daVoiceProsody: ProsodySettings | null = null;
+let daName = "Assistant";
+try {
+  const settingsPath = join(homedir(), '.claude', 'settings.json');
+  if (existsSync(settingsPath)) {
+    const settingsContent = readFileSync(settingsPath, 'utf-8');
+    const settings = JSON.parse(settingsContent);
+    if (settings.daidentity?.voiceId) {
+      daVoiceId = settings.daidentity.voiceId;
+      console.log(`Loaded DA voice ID from settings.json`);
+    }
+    if (settings.daidentity?.name) {
+      daName = settings.daidentity.name;
+    }
+    if (settings.daidentity?.voice) {
+      daVoiceProsody = settings.daidentity.voice as ProsodySettings;
+      console.log(`Loaded DA voice prosody from settings.json`);
+    }
+  }
+} catch (error) {
+  console.warn('Failed to load DA voice settings from settings.json');
+}
+
+if (!daVoiceId) {
+  console.warn('No voiceId configured in settings.json daidentity section');
+  console.warn('Add: "daidentity": { "voiceId": "your_elevenlabs_voice_id" }');
+}
+
+// Default voice ID from settings.json or environment variable
+const DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || daVoiceId || "";
+
+// Voice configuration types
+interface ProsodySettings {
+  stability: number;
+  similarity_boost: number;
+  style: number;
+  speed: number;
+  use_speaker_boost: boolean;
+  volume?: number;  // Playback volume (0.0-1.0), optional
+}
+
+interface VoiceConfig {
+  voice_id: string;
+  voice_name: string;
+  stability: number;
+  similarity_boost: number;
+  style?: number;
+  speed?: number;
+  use_speaker_boost?: boolean;
+  prosody?: ProsodySettings;
+  description: string;
+  type: string;
+}
+
+interface VoicesConfig {
+  voices: Record<string, VoiceConfig>;
+}
+
+// Default voice settings (ElevenLabs API defaults)
+const DEFAULT_PROSODY: ProsodySettings = {
+  stability: 0.5,
+  similarity_boost: 0.75,
+  style: 0.0,
+  speed: 1.0,
+  use_speaker_boost: true,
+};
+
+// Load voices configuration from CORE skill (canonical source for agent voices)
+let voicesConfig: VoicesConfig | null = null;
+try {
+  const corePersonalitiesPath = join(homedir(), '.claude', 'skills', 'CORE', 'SYSTEM', 'AGENTPERSONALITIES.md');
+  if (existsSync(corePersonalitiesPath)) {
+    const markdownContent = readFileSync(corePersonalitiesPath, 'utf-8');
+    // Extract JSON block from markdown
+    const jsonMatch = markdownContent.match(/```json\n([\s\S]*?)\n```/);
+    if (jsonMatch && jsonMatch[1]) {
+      voicesConfig = JSON.parse(jsonMatch[1]);
+      console.log('Loaded agent voice personalities from AGENTPERSONALITIES.md');
+    }
+  }
+} catch (error) {
+  console.warn('Failed to load agent voice personalities');
+}
+
+// Load user pronunciation customizations
+let pronunciations: Record<string, string> = {};
+try {
+  const pronunciationsPath = join(homedir(), '.claude', 'skills', 'CORE', 'USER', 'pronunciations.json');
+  if (existsSync(pronunciationsPath)) {
+    const content = readFileSync(pronunciationsPath, 'utf-8');
+    pronunciations = JSON.parse(content);
+    console.log(`Loaded ${Object.keys(pronunciations).length} pronunciation(s) from USER config`);
+  }
+} catch (error) {
+  console.warn('Failed to load pronunciation customizations');
+}
+
+// Apply pronunciation substitutions to text before TTS
+function applyPronunciations(text: string): string {
+  let result = text;
+  for (const [term, pronunciation] of Object.entries(pronunciations)) {
+    // Case-insensitive replacement with word boundaries
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    result = result.replace(regex, pronunciation);
+  }
+  return result;
+}
+
+// Escape special characters for AppleScript
+function escapeForAppleScript(input: string): string {
+  // Escape backslashes first, then double quotes
+  return input.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+// Strip any bracket markers from message (legacy cleanup)
+function stripMarkers(message: string): string {
+  return message.replace(/\[[^\]]*\]/g, '').trim();
+}
+
+// Get voice configuration by voice ID or agent name
+function getVoiceConfig(identifier: string): VoiceConfig | null {
+  if (!voicesConfig) return null;
+
+  // Try direct agent name lookup
+  if (voicesConfig.voices[identifier]) {
+    return voicesConfig.voices[identifier];
+  }
+
+  // Try voice_id lookup
+  for (const config of Object.values(voicesConfig.voices)) {
+    if (config.voice_id === identifier) {
+      return config;
+    }
+  }
+
+  return null;
+}
+
+// Sanitize input for TTS and notifications - allow natural speech punctuation
+function sanitizeForSpeech(input: string): string {
+  // Allow: letters, numbers, spaces, common punctuation for natural speech
+  // Explicitly block: shell metacharacters, path traversal, script tags, markdown
+  const cleaned = input
+    .replace(/<script/gi, '')  // Remove script tags
+    .replace(/\.\.\//g, '')     // Remove path traversal
+    .replace(/[;&|><`$\\]/g, '') // Remove shell metacharacters
+    .replace(/\*\*([^*]+)\*\*/g, '$1')  // Strip bold markdown: **text** -> text
+    .replace(/\*([^*]+)\*/g, '$1')       // Strip italic markdown: *text* -> text
+    .replace(/`([^`]+)`/g, '$1')         // Strip inline code: `text` -> text
+    .replace(/#{1,6}\s+/g, '')           // Strip markdown headers: ### -> (empty)
+    .trim()
+    .substring(0, 500);
+
+  return cleaned;
+}
+
+// Validate user input - check for obviously malicious content
+function validateInput(input: any): { valid: boolean; error?: string; sanitized?: string } {
+  if (!input || typeof input !== 'string') {
+    return { valid: false, error: 'Invalid input type' };
+  }
+
+  if (input.length > 500) {
+    return { valid: false, error: 'Message too long (max 500 characters)' };
+  }
+
+  // Sanitize and check if anything remains
+  const sanitized = sanitizeForSpeech(input);
+
+  if (!sanitized || sanitized.length === 0) {
+    return { valid: false, error: 'Message contains no valid content after sanitization' };
+  }
+
+  return { valid: true, sanitized };
+}
+
+// Generate speech using ElevenLabs API with full prosody support
+async function generateSpeech(
+  text: string,
+  voiceId: string,
+  prosody?: Partial<ProsodySettings>
+): Promise<ArrayBuffer> {
+  if (!ELEVENLABS_API_KEY) {
+    throw new Error('ElevenLabs API key not configured');
+  }
+
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+
+  // Merge provided prosody with defaults
+  const settings = { ...DEFAULT_PROSODY, ...prosody };
+
+  // ElevenLabs API voice_settings format (speed goes INSIDE voice_settings)
+  const voiceSettings = {
+    stability: settings.stability,
+    similarity_boost: settings.similarity_boost,
+    style: settings.style,
+    speed: settings.speed, // Speed belongs in voice_settings, not top-level
+    use_speaker_boost: settings.use_speaker_boost,
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Accept': 'audio/mpeg',
+      'Content-Type': 'application/json',
+      'xi-api-key': ELEVENLABS_API_KEY,
+    },
+    body: JSON.stringify({
+      text: text,
+      model_id: 'eleven_turbo_v2_5',
+      voice_settings: voiceSettings,
+    }),
+    // Add 30 second timeout to prevent corrupted audio from slow API calls
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.arrayBuffer();
+}
+
+// Generate speech using EdgeTTS (free fallback when ElevenLabs quota exceeded)
+async function generateSpeechEdgeTTS(
+  text: string,
+  voice: string = 'en-US-AvaNeural'  // Default: US English female voice
+): Promise<ArrayBuffer> {
+  const tempFile = `/tmp/edgetts-${Date.now()}.mp3`;
+
+  try {
+    console.log(`[EdgeTTS] Generating speech with voice: ${voice}`);
+
+    // Call edge-tts CLI using Bun.spawn
+    const proc = Bun.spawn(['edge-tts', '--text', text, '--voice', voice, '--write-media', tempFile], {
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+
+    // Wait for process to complete with timeout
+    const timeout = setTimeout(() => {
+      proc.kill();
+    }, 30000); // 30 second timeout for EdgeTTS (increased from 15s for longer messages)
+
+    await proc.exited;
+    clearTimeout(timeout);
+
+    // Read generated audio file
+    const audioFile = Bun.file(tempFile);
+    const audioBuffer = await audioFile.arrayBuffer();
+
+    // Validate audio buffer
+    if (!audioBuffer || audioBuffer.byteLength < 100) {
+      throw new Error(`Invalid EdgeTTS audio buffer: ${audioBuffer?.byteLength || 0} bytes (too small)`);
+    }
+
+    console.log(`[EdgeTTS] Generated ${audioBuffer.byteLength} bytes of audio`);
+
+    // Cleanup temp file
+    try {
+      await Bun.write(tempFile, ''); // Clear content
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+
+    return audioBuffer;
+  } catch (error) {
+    console.error('[EdgeTTS] Generation failed:', error);
+    throw error;
+  }
+}
+
+// Get volume setting from DA config or request (defaults to 1.0 = 100%)
+function getVolumeSetting(requestVolume?: number): number {
+  // Request volume takes priority
+  if (typeof requestVolume === 'number' && requestVolume >= 0 && requestVolume <= 1) {
+    return requestVolume;
+  }
+  // Then DA voice config from settings.json
+  if (daVoiceProsody?.volume !== undefined && daVoiceProsody.volume >= 0 && daVoiceProsody.volume <= 1) {
+    return daVoiceProsody.volume;
+  }
+  return 1.0; // Default to full volume
+}
+
+// Wake up suspended audio sinks (PipeWire/PulseAudio issue where sinks SUSPEND when idle)
+// This ensures audio actually plays instead of executing silently
+async function wakeAudioSinks(): Promise<number> {
+  return new Promise((resolve) => {
+    const proc = spawn('pactl', ['list', 'short', 'sinks']);
+    let output = '';
+
+    proc.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    proc.on('error', (err) => {
+      // pactl not available, skip this optimization
+      console.log('pactl not available, skipping sink wakeup');
+      resolve(0);
+    });
+
+    proc.on('exit', (code) => {
+      if (code !== 0) {
+        resolve(0); // Non-critical, continue
+        return;
+      }
+
+      // Extract sink IDs and resume each one
+      const lines = output.trim().split('\n');
+      let resumed = 0;
+
+      for (const line of lines) {
+        const sinkId = line.split('\t')[0];
+        if (sinkId && /^\d+$/.test(sinkId)) {
+          const resumeProc = spawn('pactl', ['suspend-sink', sinkId, '0']);
+          resumeProc.on('exit', () => resumed++);
+        }
+      }
+
+      if (resumed > 0) {
+        console.log(`Woke up ${resumed} audio sink(s) from suspended state`);
+      }
+
+      resolve(resumed);
+    });
+  });
+}
+
+// Play audio using multiple fallback players for maximum compatibility
+async function playAudio(audioBuffer: ArrayBuffer, requestVolume?: number): Promise<void> {
+  const tempFile = `/tmp/voice-${Date.now()}.mp3`;
+
+  // Validate audio buffer before proceeding
+  if (!audioBuffer || audioBuffer.byteLength < 100) {
+    throw new Error(`Invalid audio buffer: ${audioBuffer?.byteLength || 0} bytes (too small, likely empty API response)`);
+  }
+
+  // Write audio to temp file
+  await Bun.write(tempFile, audioBuffer);
+  console.log(`[DEBUG] Audio buffer written to ${tempFile} (${audioBuffer.byteLength} bytes)`);
+
+  // CRITICAL FIX: Wake suspended audio sinks before playback
+  // PipeWire suspends sinks when idle, causing silent paplay execution
+  // We do this RIGHT before playback to minimize the window for re-suspension
+  const resumedSinks = await wakeAudioSinks();
+
+  // Give sinks sufficient time to fully wake up (PipeWire needs more than 100ms)
+  // Increased from 100ms to 500ms based on first principles analysis of PipeWire sink suspension
+  if (resumedSinks > 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log(`[DEBUG] Waited 500ms for ${resumedSinks} sink(s) to fully wake up`);
+  }
+
+  const volume = getVolumeSetting(requestVolume);
+
+  // List of audio players to try in order (MP3-capable players first)
+  // mpv: Modern media player, handles MP3 natively, supports volume - MOST RELIABLE for MP3
+  // paplay: PulseAudio/PipeWire native, handles MP3 via GStreamer plugins
+  // ffplay: Part of ffmpeg, handles MP3 natively, but bypasses PulseAudio sometimes
+  // aplay: ALSA player, does NOT support MP3 - only as last resort with WAV files
+  const audioPlayers = [
+    { cmd: 'mpv', args: ['--no-video', '--really-quiet', '--volume', Math.round(volume * 100).toString(), tempFile], name: 'mpv' },
+    { cmd: 'paplay', args: ['--volume', Math.round(volume * 65536).toString(), tempFile], name: 'paplay' },
+    { cmd: 'ffplay', args: ['-nodisp', '-autoexit', '-loglevel', 'error', tempFile], name: 'ffplay' },
+    { cmd: 'aplay', args: [tempFile], name: 'aplay' }  // Last resort - no MP3 support
+  ];
+
+  // Allow override via environment variable
+  const forcedPlayer = process.env.PAI_AUDIO_PLAYER;
+  if (forcedPlayer) {
+    const player = audioPlayers.find(p => p.cmd === forcedPlayer);
+    if (player) {
+      audioPlayers.length = 0;
+      audioPlayers.push(player);
+      console.log(`[DEBUG] Forced audio player: ${forcedPlayer}`);
+    }
+  }
+
+  console.log(`[DEBUG] Attempting audio playback with ${audioPlayers.length} players (volume: ${Math.round(volume * 100)}%)`);
+
+  // Check which players are actually available before trying
+  const availablePlayers: typeof audioPlayers = [];
+  for (const player of audioPlayers) {
+    try {
+      // Test if player exists by checking version/command
+      const testProc = spawn(player.cmd, ['--version'], { stdio: 'ignore' });
+      await new Promise<void>((resolve, reject) => {
+        testProc.on('error', () => reject());
+        testProc.on('exit', (code) => code === 0 ? resolve() : reject());
+      });
+      availablePlayers.push(player);
+      console.log(`[DEBUG] ${player.cmd} is available`);
+    } catch {
+      console.log(`[DEBUG] ${player.cmd} is NOT installed, skipping`);
+    }
+  }
+
+  if (availablePlayers.length === 0) {
+    console.error(`[ERROR] No audio players found! Tried: ${audioPlayers.map(p => p.cmd).join(', ')}`);
+    throw new Error('No audio players installed. Install at least one: paplay, mpv, ffplay, or aplay');
+  }
+
+  // Try each available player in sequence
+  for (const player of availablePlayers) {
+    try {
+      console.log(`[DEBUG] Trying ${player.cmd} with args: ${player.args.join(' ')}`);
+      await playAudioWithPlayer(player.cmd, player.args);
+      console.log(`[SUCCESS] Audio playback successful with ${player.cmd}`);
+      spawn('/bin/rm', [tempFile]);
+      return; // Success!
+    } catch (error) {
+      const errMsg = (error as Error).message;
+      console.log(`[FAILED] ${player.cmd} failed: ${errMsg}`);
+      // Try next player
+    }
+  }
+
+  // All players failed - keep temp file for debugging
+  console.error(`[ERROR] All audio players failed. Temp file saved at: ${tempFile}`);
+  console.error(`[ERROR] Check: (1) Audio device connected, (2) Audio not muted, (3) Player working`);
+  throw new Error(`All audio players failed. Available: ${availablePlayers.map(p => p.cmd).join(', ')}. Check system audio configuration.`);
+}
+
+// Helper to play audio with a specific player
+function playAudioWithPlayer(command: string, args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(command, args);
+
+    // Capture stderr for debugging
+    const stderrChunks: Buffer[] = [];
+    proc.stderr?.on('data', (data) => {
+      stderrChunks.push(data);
+    });
+
+    proc.on('error', (error) => {
+      // Player not found or couldn't execute
+      reject(new Error(`${command} not available or execution failed: ${error.message}`));
+    });
+
+    proc.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        const stderr = Buffer.concat(stderrChunks).toString('utf-8').trim();
+        reject(new Error(`${command} exited with code ${code}${stderr ? ': ' + stderr : ''}`));
+      }
+    });
+  });
+}
+
+// Use espeak command as fallback (Linux)
+async function speakWithSay(text: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('espeak', ['-v', 'en-us', text]);
+
+    proc.on('error', (error) => {
+      console.error('Error with espeak command (not installed?):', error);
+      reject(error);
+    });
+
+    proc.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`espeak exited with code ${code}`));
+      }
+    });
+  });
+}
+
+// Spawn a process safely
+function spawnSafe(command: string, args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(command, args);
+
+    proc.on('error', (error) => {
+      console.error(`Error spawning ${command}:`, error);
+      reject(error);
+    });
+
+    proc.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${command} exited with code ${code}`));
+      }
+    });
+  });
+}
+
+// Send macOS notification with voice
+async function sendNotification(
+  title: string,
+  message: string,
+  voiceEnabled = true,
+  voiceId: string | null = null,
+  requestProsody?: Partial<ProsodySettings>
+) {
+  // Validate and sanitize inputs
+  const titleValidation = validateInput(title);
+  const messageValidation = validateInput(message);
+
+  if (!titleValidation.valid) {
+    throw new Error(`Invalid title: ${titleValidation.error}`);
+  }
+
+  if (!messageValidation.valid) {
+    throw new Error(`Invalid message: ${messageValidation.error}`);
+  }
+
+  // Use pre-sanitized values from validation
+  const safeTitle = titleValidation.sanitized!;
+  let safeMessage = stripMarkers(messageValidation.sanitized!);
+
+  // Generate and play voice
+  if (voiceEnabled) {
+    try {
+      // Use EdgeTTS by default (free, fast, no quota)
+      console.log(`[Primary] Using EdgeTTS with female voice...`);
+      const edgeTTSVoice = 'en-US-AvaNeural'; // US English female voice
+      const edgeTTSBuffer = await generateSpeechEdgeTTS(applyPronunciations(safeMessage), edgeTTSVoice);
+      const volume = requestProsody?.volume ?? daVoiceProsody?.volume ?? 1.0;
+      await playAudio(edgeTTSBuffer, volume);
+      console.log(`[Primary] EdgeTTS playback successful!`);
+    } catch (error) {
+      console.error("[Primary] EdgeTTS failed:", error);
+
+      // Fallback to ElevenLabs if EdgeTTS fails
+      try {
+        if (ELEVENLABS_API_KEY) {
+          console.log(`[Fallback] Trying ElevenLabs...`);
+          const voice = voiceId || DEFAULT_VOICE_ID;
+
+          const voiceConfig = getVoiceConfig(voice);
+          let prosody: Partial<ProsodySettings> = {};
+
+          if (voiceConfig) {
+            if (voiceConfig.prosody) {
+              prosody = voiceConfig.prosody;
+            } else {
+              prosody = {
+                stability: voiceConfig.stability,
+                similarity_boost: voiceConfig.similarity_boost,
+                style: voiceConfig.style ?? DEFAULT_PROSODY.style,
+                speed: voiceConfig.speed ?? DEFAULT_PROSODY.speed,
+                use_speaker_boost: voiceConfig.use_speaker_boost ?? DEFAULT_PROSODY.use_speaker_boost,
+              };
+            }
+            console.log(`Voice: ${voiceConfig.description}`);
+          } else if (voice === DEFAULT_VOICE_ID && daVoiceProsody) {
+            prosody = daVoiceProsody;
+            console.log(`Voice: DA default`);
+          }
+
+          if (requestProsody) {
+            prosody = { ...prosody, ...requestProsody };
+          }
+
+          const settings = { ...DEFAULT_PROSODY, ...prosody };
+          const volume = (prosody as any)?.volume ?? daVoiceProsody?.volume ?? 1.0;
+          console.log(`[Fallback] ElevenLabs speech (voice: ${voice}, volume: ${volume})`);
+
+          const spokenMessage = applyPronunciations(safeMessage);
+          const audioBuffer = await generateSpeech(spokenMessage, voice, prosody);
+          await playAudio(audioBuffer, volume);
+          console.log(`[Fallback] ElevenLabs succeeded!`);
+        }
+      } catch (elevenLabsError) {
+        console.error("[Fallback] ElevenLabs also failed:", elevenLabsError);
+        // Final fallback to espeak
+        try {
+          await speakWithSay(applyPronunciations(safeMessage));
+        } catch (sayError) {
+          console.error("[Fallback] espeak also failed:", sayError);
+        }
+      }
+    }
+  }
+
+  // Display desktop notification (Linux: notify-send, macOS: osascript)
+  try {
+    // Try notify-send for Linux first
+    await spawnSafe('notify-send', [safeTitle, safeMessage]);
+  } catch (error) {
+    // Fallback to osascript for macOS
+    try {
+      const escapedTitle = escapeForAppleScript(safeTitle);
+      const escapedMessage = escapeForAppleScript(safeMessage);
+      const script = `display notification "${escapedMessage}" with title "${escapedTitle}" sound name ""`;
+      await spawnSafe('/usr/bin/osascript', ['-e', script]);
+    } catch (macError) {
+      console.error("Notification display error (neither notify-send nor osascript available):", error);
+    }
+  }
+}
+
+// Rate limiting
+const requestCounts = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 10;
+const RATE_WINDOW = 60000;
+
+// Voice notification queue to prevent overlapping playback
+let isPlayingNotification = false;
+const notificationQueue: Array<() => Promise<void>> = [];
+
+async function queueNotificationPlayback(fn: () => Promise<void>): Promise<void> {
+  notificationQueue.push(fn);
+
+  // If nothing is currently playing, start processing the queue
+  if (!isPlayingNotification) {
+    processNotificationQueue();
+  }
+
+  // Wait for this specific notification to complete
+  return new Promise((resolve) => {
+    const checkInterval = setInterval(() => {
+      if (notificationQueue.length === 0 && !isPlayingNotification) {
+        clearInterval(checkInterval);
+        resolve();
+      }
+    }, 100);
+  });
+}
+
+async function processNotificationQueue(): Promise<void> {
+  if (isPlayingNotification || notificationQueue.length === 0) {
+    return;
+  }
+
+  isPlayingNotification = true;
+  const fn = notificationQueue.shift();
+
+  if (fn) {
+    try {
+      await fn();
+    } catch (error) {
+      console.error("Notification queue error:", error);
+    }
+  }
+
+  isPlayingNotification = false;
+
+  // Process next notification if any
+  if (notificationQueue.length > 0) {
+    setTimeout(() => processNotificationQueue(), 100);
+  }
+}
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = requestCounts.get(ip);
+
+  if (!record || now > record.resetTime) {
+    requestCounts.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
+// Start HTTP server
+const server = serve({
+  port: PORT,
+  async fetch(req) {
+    const url = new URL(req.url);
+
+    const clientIp = req.headers.get('x-forwarded-for') || 'localhost';
+
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "http://localhost",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    };
+
+    if (req.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders, status: 204 });
+    }
+
+    if (!checkRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ status: "error", message: "Rate limit exceeded" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429
+        }
+      );
+    }
+
+    if (url.pathname === "/notify" && req.method === "POST") {
+      try {
+        const data = await req.json();
+        const title = data.title || "PAI Notification";
+        const message = data.message || "Task completed";
+        const voiceEnabled = data.voice_enabled !== false;
+        const voiceId = data.voice_id || data.voice_name || null; // Support both voice_id and voice_name
+
+        // Accept prosody settings directly in request (for custom agents)
+        // Also accept volume at top level for convenience
+        const voiceSettings: Partial<ProsodySettings> | undefined = data.voice_settings
+          ? { ...data.voice_settings, volume: data.volume ?? data.voice_settings.volume }
+          : data.volume !== undefined
+            ? { volume: data.volume }
+            : undefined;
+
+        if (voiceId && typeof voiceId !== 'string') {
+          throw new Error('Invalid voice_id');
+        }
+
+        console.log(`Notification: "${title}" - "${message}" (voice: ${voiceEnabled}, voiceId: ${voiceId || DEFAULT_VOICE_ID})`);
+
+        // Queue the notification to prevent overlapping playback
+        await queueNotificationPlayback(async () => {
+          await sendNotification(title, message, voiceEnabled, voiceId, voiceSettings);
+        });
+
+        return new Response(
+          JSON.stringify({ status: "success", message: "Notification sent" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200
+          }
+        );
+      } catch (error: any) {
+        console.error("Notification error:", error);
+        return new Response(
+          JSON.stringify({ status: "error", message: error.message || "Internal server error" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: error.message?.includes('Invalid') ? 400 : 500
+          }
+        );
+      }
+    }
+
+    if (url.pathname === "/pai" && req.method === "POST") {
+      try {
+        const data = await req.json();
+        const title = data.title || "PAI Assistant";
+        const message = data.message || "Task completed";
+
+        console.log(`PAI notification: "${title}" - "${message}"`);
+
+        // Queue the notification to prevent overlapping playback
+        await queueNotificationPlayback(async () => {
+          await sendNotification(title, message, true, null);
+        });
+
+        return new Response(
+          JSON.stringify({ status: "success", message: "PAI notification sent" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200
+          }
+        );
+      } catch (error: any) {
+        console.error("PAI notification error:", error);
+        return new Response(
+          JSON.stringify({ status: "error", message: error.message || "Internal server error" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: error.message?.includes('Invalid') ? 400 : 500
+          }
+        );
+      }
+    }
+
+    if (url.pathname === "/health") {
+      const os = process.platform;
+      return new Response(
+        JSON.stringify({
+          status: "healthy",
+          port: PORT,
+          os: os,
+          voice_system: ELEVENLABS_API_KEY ? "ElevenLabs" : "None (API key required)",
+          default_voice_id: DEFAULT_VOICE_ID,
+          api_key_configured: !!ELEVENLABS_API_KEY
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200
+        }
+      );
+    }
+
+    return new Response("Voice Server - POST to /notify or /pai", {
+      headers: corsHeaders,
+      status: 200
+    });
+  },
+});
+
+const os = process.platform;
+console.log(`Voice Server running on port ${PORT} (${os})`);
+console.log(`Using ${ELEVENLABS_API_KEY ? 'ElevenLabs' : 'None (API key required)'} TTS (default voice: ${DEFAULT_VOICE_ID})`);
+console.log(`POST to http://localhost:${PORT}/notify`);
+console.log(`Security: CORS restricted to localhost, rate limiting enabled`);
+console.log(`API Key: ${ELEVENLABS_API_KEY ? 'Configured' : 'Not configured - notifications disabled'}`);

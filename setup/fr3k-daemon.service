@@ -1,0 +1,22 @@
+[Unit]
+Description=FR3K Self-Improvement Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+WorkingDirectory=INSTALL_DIR/autoimprove-101-loops
+ExecStart=/usr/bin/bun autonomous/self-improvement-loop.ts
+Restart=always
+RestartSec=60
+EnvironmentFile=INSTALL_DIR/.env
+
+[Install]
+WantedBy=multi-user.target
+
+# INSTALLATION NOTES:
+# 1. Replace YOUR_USERNAME with your actual username
+# 2. Replace INSTALL_DIR with the full path to fr3k-export
+# 3. Copy to: /etc/systemd/system/fr3k-daemon.service
+# 4. Enable with: sudo systemctl enable fr3k-daemon
+# 5. Start with: sudo systemctl start fr3k-daemon

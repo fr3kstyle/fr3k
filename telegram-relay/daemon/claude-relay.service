@@ -1,0 +1,57 @@
+[Unit]
+Description=Claude Code Telegram Relay
+After=network.target
+
+[Service]
+Type=simple
+# UPDATE THIS: Your username
+User=YOUR_USERNAME
+# UPDATE THIS: Path to relay directory
+WorkingDirectory=/home/YOUR_USERNAME/claude-telegram-relay
+# UPDATE THIS: Path to bun
+ExecStart=/home/YOUR_USERNAME/.bun/bin/bun run src/relay.ts
+Restart=always
+RestartSec=10
+
+# Environment
+Environment=HOME=/home/YOUR_USERNAME
+Environment=PATH=/home/YOUR_USERNAME/.bun/bin:/usr/local/bin:/usr/bin:/bin
+
+# Optional: Load .env file
+# EnvironmentFile=/home/YOUR_USERNAME/claude-telegram-relay/.env
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-relay
+
+[Install]
+WantedBy=multi-user.target
+
+# SETUP INSTRUCTIONS:
+#
+# 1. Replace all YOUR_USERNAME with your actual Linux username
+#
+# 2. Copy to systemd:
+#    sudo cp daemon/claude-relay.service /etc/systemd/system/
+#
+# 3. Reload systemd:
+#    sudo systemctl daemon-reload
+#
+# 4. Enable (start on boot):
+#    sudo systemctl enable claude-relay
+#
+# 5. Start:
+#    sudo systemctl start claude-relay
+#
+# 6. Check status:
+#    sudo systemctl status claude-relay
+#
+# 7. View logs:
+#    journalctl -u claude-relay -f
+#
+# 8. Stop:
+#    sudo systemctl stop claude-relay
+#
+# 9. Disable:
+#    sudo systemctl disable claude-relay

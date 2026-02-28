@@ -1,0 +1,276 @@
+{
+  "primitives": [
+    {
+      "type": "scheduled",
+      "location": "agents/voice-agent.ts",
+      "description": "Recurring task via setInterval",
+      "codeRef": "agents/voice-agent.ts",
+      "usage": [
+        "Scheduled execution"
+      ]
+    },
+    {
+      "type": "scheduled",
+      "location": "agents/dispatcher-agent.ts",
+      "description": "Recurring task via setInterval",
+      "codeRef": "agents/dispatcher-agent.ts",
+      "usage": [
+        "Scheduled execution"
+      ]
+    },
+    {
+      "type": "scheduled",
+      "location": "agents/dispatcher-agent.ts",
+      "description": "Recurring task via setInterval",
+      "codeRef": "agents/dispatcher-agent.ts",
+      "usage": [
+        "Scheduled execution"
+      ]
+    },
+    {
+      "type": "scheduled",
+      "location": "agents/crypto/crypto-trading-agent.ts",
+      "description": "Recurring task via setInterval",
+      "codeRef": "agents/crypto/crypto-trading-agent.ts",
+      "usage": [
+        "Scheduled execution"
+      ]
+    },
+    {
+      "type": "scheduled",
+      "location": "agents/crypto/crypto-trading-agent.ts",
+      "description": "Recurring task via setInterval",
+      "codeRef": "agents/crypto/crypto-trading-agent.ts",
+      "usage": [
+        "Scheduled execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/orchestrator.ts",
+      "description": "Parallel agent: orchestrator",
+      "codeRef": "parallel-agents/orchestrator.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/types.ts",
+      "description": "Parallel agent: types",
+      "codeRef": "parallel-agents/types.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/decomposer.ts",
+      "description": "Parallel agent: decomposer",
+      "codeRef": "parallel-agents/decomposer.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/agent-pool-manager.ts",
+      "description": "Parallel agent: agent-pool-manager",
+      "codeRef": "parallel-agents/agent-pool-manager.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/agent-worker.ts",
+      "description": "Parallel agent: agent-worker",
+      "codeRef": "parallel-agents/agent-worker.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/result-orchestrator.ts",
+      "description": "Parallel agent: result-orchestrator",
+      "codeRef": "parallel-agents/result-orchestrator.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/load-balancer.ts",
+      "description": "Parallel agent: load-balancer",
+      "codeRef": "parallel-agents/load-balancer.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/parallel-processor.ts",
+      "description": "Parallel agent: parallel-processor",
+      "codeRef": "parallel-agents/parallel-processor.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "parallel",
+      "location": "parallel-agents/metrics-server.ts",
+      "description": "Parallel agent: metrics-server",
+      "codeRef": "parallel-agents/metrics-server.ts",
+      "usage": [
+        "Multi-agent task execution"
+      ]
+    },
+    {
+      "type": "state-machine",
+      "location": "index.ts",
+      "description": "FR3K Algorithm 7-phase state machine",
+      "codeRef": "index.ts:454-750",
+      "usage": [
+        "All FR3K interactions",
+        "Task orchestration",
+        "Workflow management"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/automated-call-monitor.ts",
+      "description": "Autonomous agent: automated-call-monitor",
+      "codeRef": "agents/automated-call-monitor.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/autonomous-monitor-fixed.ts",
+      "description": "Autonomous agent: autonomous-monitor-fixed",
+      "codeRef": "agents/autonomous-monitor-fixed.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/autonomous-monitor.ts",
+      "description": "Autonomous agent: autonomous-monitor",
+      "codeRef": "agents/autonomous-monitor.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/communication-agent.ts",
+      "description": "Autonomous agent: communication-agent",
+      "codeRef": "agents/communication-agent.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/dispatcher-agent.ts",
+      "description": "Autonomous agent: dispatcher-agent",
+      "codeRef": "agents/dispatcher-agent.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/enhanced-notification-agent.ts",
+      "description": "Autonomous agent: enhanced-notification-agent",
+      "codeRef": "agents/enhanced-notification-agent.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/proactive-agent.ts",
+      "description": "Autonomous agent: proactive-agent",
+      "codeRef": "agents/proactive-agent.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/reachy-integration.ts",
+      "description": "Autonomous agent: reachy-integration",
+      "codeRef": "agents/reachy-integration.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/task-orchestrator.ts",
+      "description": "Autonomous agent: task-orchestrator",
+      "codeRef": "agents/task-orchestrator.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/twilio-server-edgetts.ts",
+      "description": "Autonomous agent: twilio-server-edgetts",
+      "codeRef": "agents/twilio-server-edgetts.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/twilio-voice-server.ts",
+      "description": "Autonomous agent: twilio-voice-server",
+      "codeRef": "agents/twilio-voice-server.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    },
+    {
+      "type": "manual",
+      "location": "agents/voice-agent.ts",
+      "description": "Autonomous agent: voice-agent",
+      "codeRef": "agents/voice-agent.ts",
+      "usage": [
+        "Background operations",
+        "Async processing"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 27,
+    "byType": {
+      "scheduled": 5,
+      "parallel": 9,
+      "state-machine": 1,
+      "manual": 12
+    },
+    "coverage": 100,
+    "gaps": [
+      "No workflow template system - each workflow custom-implemented",
+      "No event bus - system uses polling (500ms message queue)"
+    ]
+  },
+  "timestamp": "2026-02-24T01:43:07.250Z"
+}

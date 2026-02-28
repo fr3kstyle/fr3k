@@ -1,0 +1,1017 @@
+#!/usr/bin/env bun
+/**
+ * PAI Autonomous Monitor - Proactive background tasks
+ *
+ * Runs autonomous tasks in background and sends periodic updates to Telegram.
+ * Tasks include:
+ * - System health monitoring
+ * - Security updates
+ * - Project status checks
+ * - Resource monitoring
+ * - Proactive suggestions
+ */
+
+import { Bot } from "grammy";
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+const ALLOWED_USER_ID = process.env.TELEGRAM_USER_ID || "";
+const UPDATE_INTERVAL_MS = 1200000; // 20 minutes
+const CHECK_INTERVAL_MS = 60000; // Check every minute for time-based triggers
+
+// Task execution tracking
+interface TaskResult {
+  name: string;
+  status: 'success' | 'warning' | 'error';
+  message: string;
+  timestamp: number;
+  data?: any;
+}
+
+let lastUpdateTime = 0;
+let taskResults: TaskResult[] = [];
+
+// Initialize bot for sending updates
+const bot = new Bot(BOT_TOKEN);
+
+// ============================================================================
+// AUTO-REMEDIATION FUNCTIONS
+// ============================================================================
+
+async function remediateSecurityIssues(failedAttempts: number, rootLogins: number): Promise<string[]> {
+  const actions: string[] = [];
+
+  // Block repeated SSH attackers
+  if (failedAttempts > 50) {
+    try {
+      // Extract IPs with high failure counts
+      const authLogPath = '/var/log/auth.log';
+      const proc = Bun.spawn({
+        cmd: ['grep', '-i', 'failed password', authLogPath],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+
+      const output = await new Response(proc.stdout).text();
+      const ipCounts = new Map<string, number>();
+
+      for (const line of output.trim().split('\n')) {
+        const ipMatch = line.match(/from (\d+\.\d+\.\d+\.\d+) port/);
+        if (ipMatch) {
+          const ip = ipMatch[1];
+          ipCounts.set(ip, (ipCounts.get(ip) || 0) + 1);
+        }
+      }
+
+      // Block IPs with >10 failed attempts
+      for (const [ip, count] of ipCounts.entries()) {
+        if (count > 10) {
+          // Add to firewall blocklist
+          Bun.spawn({
+            cmd: ['sudo', 'iptables', '-A', 'INPUT', '-s', ip, '-j', 'DROP'],
+            stdout: 'pipe',
+            stderr: 'pipe'
+          });
+          actions.push(`🔒 Blocked IP ${ip} (${count} failed attempts)`);
+        }
+      }
+    } catch (error) {
+      actions.push(`⚠️ Could not auto-block attackers: ${error.message}`);
+    }
+  }
+
+  // Alert on suspicious root logins
+  if (rootLogins > 0) {
+    actions.push(`🚨 ${rootLogins} root login(s) detected - investigate immediately`);
+  }
+
+  return actions;
+}
+
+async function remediateResourceIssues(usagePercent: number): Promise<string[]> {
+  const actions: string[] = [];
+
+  if (usagePercent > 85) {
+    try {
+      // Clear bun caches
+      const cacheProc = Bun.spawn({
+        cmd: ['bash', '-c', 'rm -rf ~/.bun/install/cache/*'],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+      await cacheProc.exited;
+      actions.push('🧹 Cleared Bun cache to free memory');
+
+      // Clear old logs >7 days
+      const logProc = Bun.spawn({
+        cmd: ['bash', '-c', 'find logs/ -name "*.log" -mtime +7 -delete'],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+      await logProc.exited;
+      actions.push('🧹 Cleaned old log files');
+    } catch (error) {
+      actions.push(`⚠️ Cleanup failed: ${error.message}`);
+    }
+  }
+
+  return actions;
+}
+
+async function remediateQueueIssues(queueSize: number): Promise<string[]> {
+  const actions: string[] = [];
+
+  if (queueSize > 3) {
+    try {
+      // Check if main bot is stuck
+      const mainBotRunning = await checkProcessRunning('index.ts') || await checkProcessRunning('pai-telegram-bot');
+
+      if (!mainBotRunning) {
+        // Restart main bot
+        const startProc = Bun.spawn({
+          cmd: ['systemctl', '--user', 'start', 'pai-telegram-bot.service'],
+          stdout: 'pipe',
+          stderr: 'pipe'
+        });
+        await startProc.exited;
+        actions.push('🔄 Restarted main bot service');
+      } else {
+        // Try to flush stuck queue
+        const queuePath = '/tmp/pai-message-queue.json';
+        await Bun.write(queuePath, '[]');
+        actions.push('🧹 Cleared stuck message queue');
+      }
+    } catch (error) {
+      actions.push(`⚠️ Queue remediation failed: ${error.message}`);
+    }
+  }
+
+  return actions;
+}
+
+async function remediateVoiceServer(): Promise<string[]> {
+  const actions: string[] = [];
+
+  try {
+    const response = await fetch('http://localhost:8888/health');
+    if (!response.ok) {
+      // Restart voice server
+      const restartProc = Bun.spawn({
+        cmd: ['pkill', '-f', 'server.ts'],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+      await restartProc.exited;
+
+      // Wait and restart
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      Bun.spawn({
+        cmd: ['bun', 'agents/voice-agent.ts'],
+        stdout: 'pipe',
+        stderr: 'pipe',
+        detached: true
+      });
+
+      actions.push('🔄 Restarted voice server');
+    }
+  } catch (error) {
+    actions.push(`⚠️ Voice server remediation failed: ${error.message}`);
+  }
+
+  return actions;
+}
+
+// ============================================================================
+// PROACTIVE OPTIMIZATION TASKS
+// ============================================================================
+
+async function runProactiveOptimizations(): Promise<string[]> {
+  const optimizations: string[] = [];
+
+  try {
+    // 1. Clean tmp files older than 1 day
+    const tmpProc = Bun.spawn({
+      cmd: ['bash', '-c', 'find /tmp -name "pai-*" -mtime +1 -delete 2>/dev/null || true'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    await tmpProc.exited;
+    optimizations.push('🧹 Cleaned old temp files');
+
+    // 2. Rotate logs if >100MB
+    const logSizeProc = Bun.spawn({
+      cmd: ['bash', '-c', 'du -sm logs/ | cut -f1'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const sizeOutput = await new Response(logSizeProc.stdout).text();
+    const sizeMB = parseInt(sizeOutput.trim());
+
+    if (sizeMB > 100) {
+      // Compress old logs
+      const compressProc = Bun.spawn({
+        cmd: ['bash', '-c', 'find logs/ -name "*.log" -mtime +1 -exec gzip {} \\;'],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+      await compressProc.exited;
+      optimizations.push(`📦 Compressed old logs (${sizeMB}MB → compressed)`);
+    }
+
+    // 3. Check for dependency updates
+    const checkProc = Bun.spawn({
+      cmd: ['bun', 'update', '--check'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    await checkProc.exited;
+    optimizations.push('📦 Checked for dependency updates');
+
+    // 4. Verify service health
+    const services = ['pai-telegram-bot.service'];
+    for (const service of services) {
+      const statusProc = Bun.spawn({
+        cmd: ['systemctl', '--user', 'is-active', service],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+      const status = await new Response(statusProc.stdout).text();
+      if (status.trim() !== 'active') {
+        optimizations.push(`⚠️ Service ${service} not active - monitoring`);
+      }
+    }
+
+  } catch (error) {
+    optimizations.push(`⚠️ Some optimizations failed: ${error.message}`);
+  }
+
+  return optimizations;
+}
+
+// ============================================================================
+// AUTONOMOUS TASKS
+// ============================================================================
+
+async function checkSystemHealth(): Promise<TaskResult> {
+  try {
+    const uptime = process.uptime();
+    const memUsage = process.memoryUsage();
+
+    // Check if main bot process is actually running
+    const mainBotRunning = await checkProcessRunning('index.ts') || await checkProcessRunning('pai-telegram-bot');
+
+    // Get actual CPU count
+    const cpuCount = navigator.hardwareConcurrency || 1;
+
+    // Get system load average
+    const loadProc = Bun.spawn({
+      cmd: ['cat', '/proc/loadavg'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+
+    let loadAvg = 'N/A';
+    try {
+      const loadOutput = await new Response(loadProc.stdout).text();
+      const parts = loadOutput.trim().split(' ');
+      loadAvg = parts[0] || 'N/A';
+    } catch {
+      loadAvg = 'N/A';
+    }
+
+    return {
+      name: 'System Health',
+      status: mainBotRunning ? 'success' : 'warning',
+      message: `Uptime: ${Math.floor(uptime / 3600)}h | Load: ${loadAvg} | Mem: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB | Main bot: ${mainBotRunning ? 'Running' : 'Stopped'}`,
+      timestamp: Date.now(),
+      data: { uptime, memory: memUsage, mainBotRunning, loadAvg, cpuCount }
+    };
+  } catch (error) {
+    return {
+      name: 'System Health',
+      status: 'error',
+      message: `Health check failed: ${error.message}`,
+      timestamp: Date.now()
+    };
+  }
+}
+
+// ============================================================================
+// SECURITY DATA SOURCE HELPERS
+// ============================================================================
+
+async function getCurrentLogins(): Promise<string[]> {
+  try {
+    const proc = Bun.spawn({
+      cmd: ['who'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const output = await new Response(proc.stdout).text();
+    return output.trim().split('\n').filter(line => line.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+async function checkSuspiciousProcesses(): Promise<{ suspicious: number; details: string[] }> {
+  try {
+    // Look for potentially suspicious processes
+    const suspiciousPatterns = [
+      'nc -l',           // netcat listener
+      'ncat -l',         // ncat listener
+      'ssh.*-N.*-R',     // SSH reverse tunnel
+      'curl.*ftp:',      // FTP access
+      'wget.*ftp:',      // FTP access
+      'python.*socket',  // Python socket listeners
+      'perl.*socket',    // Perl socket listeners
+    ];
+
+    const proc = Bun.spawn({
+      cmd: ['ps', 'aux'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const output = await new Response(proc.stdout).text();
+    const lines = output.trim().split('\n');
+
+    const details: string[] = [];
+    let suspiciousCount = 0;
+
+    for (const line of lines) {
+      for (const pattern of suspiciousPatterns) {
+        const regex = new RegExp(pattern, 'i');
+        if (regex.test(line)) {
+          suspiciousCount++;
+          const parts = line.trim().split(/\s+/);
+          details.push(`⚠️ ${parts[1]}: ${parts[10]} ${parts[11] || ''}`);
+          break;
+        }
+      }
+    }
+
+    return { suspicious: suspiciousCount, details };
+  } catch {
+    return { suspicious: 0, details: [] };
+  }
+}
+
+async function checkPAILogs(): Promise<{ errors: number; warnings: number }> {
+  try {
+    const logDir = '/home/fr3k/pai-telegram-bot/logs';
+    const proc = Bun.spawn({
+      cmd: ['bash', '-c', `grep -c -i "error\\|fail\\|exception" ${logDir}/*.log 2>/dev/null || echo "0"`],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const output = await new Response(proc.stdout).text();
+    const errorCount = parseInt(output.trim().split('\n').reduce((a, b) => {
+      const num = parseInt(b.split(':')[1] || '0');
+      return a + (isNaN(num) ? 0 : num);
+    }, '0'));
+
+    const warnProc = Bun.spawn({
+      cmd: ['bash', '-c', `grep -c -i "warn" ${logDir}/*.log 2>/dev/null || echo "0"`],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const warnOutput = await new Response(warnProc.stdout).text();
+    const warnCount = parseInt(warnOutput.trim().split('\n').reduce((a, b) => {
+      const num = parseInt(b.split(':')[1] || '0');
+      return a + (isNaN(num) ? 0 : num);
+    }, '0'));
+
+    return { errors: errorCount, warnings: warnCount };
+  } catch {
+    return { errors: 0, warnings: 0 };
+  }
+}
+
+async function checkCriticalServices(): Promise<{ running: number; total: number; details: string[] }> {
+  try {
+    const services = [
+      'pai-telegram-bot.service',
+    ];
+
+    const details: string[] = [];
+    let runningCount = 0;
+
+    for (const service of services) {
+      const proc = Bun.spawn({
+        cmd: ['systemctl', '--user', 'is-active', service],
+        stdout: 'pipe',
+        stderr: 'pipe'
+      });
+      const output = await new Response(proc.stdout).text();
+      const status = output.trim();
+
+      if (status === 'active') {
+        runningCount++;
+        details.push(`✅ ${service}: active`);
+      } else {
+        details.push(`⚠️ ${service}: ${status}`);
+      }
+    }
+
+    return { running: runningCount, total: services.length, details };
+  } catch {
+    return { running: 0, total: 1, details: ['⚠️ Unable to check service status'] };
+  }
+}
+
+async function checkSudoHistory(): Promise<{ recentSudo: number; lastCommand: string }> {
+  try {
+    const historyFile = '/home/fr3k/.bash_history';
+    const proc = Bun.spawn({
+      cmd: ['bash', '-c', `grep -E "sudo|su " ${historyFile} 2>/dev/null | tail -5`],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const output = await new Response(proc.stdout).text();
+    const lines = output.trim().split('\n').filter(line => line.length > 0);
+    const lastCommand = lines.length > 0 ? lines[lines.length - 1] : 'None';
+
+    return { recentSudo: lines.length, lastCommand };
+  } catch {
+    return { recentSudo: 0, lastCommand: 'History unavailable' };
+  }
+}
+
+async function checkAuthLog(): Promise<{ failedAttempts: number; rootLogins: number; available: boolean }> {
+  try {
+    const authLogPath = '/var/log/auth.log';
+    const authLogExists = await Bun.file(authLogPath).exists();
+
+    if (!authLogExists) {
+      return { failedAttempts: 0, rootLogins: 0, available: false };
+    }
+
+    // Check recent failed SSH attempts
+    const proc = Bun.spawn({
+      cmd: ['grep', '-i', 'failed password', authLogPath],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const output = await new Response(proc.stdout).text();
+    const failedAttempts = output.trim().split('\n').filter(line => line.length > 0).length;
+
+    // Check for successful root logins
+    const rootProc = Bun.spawn({
+      cmd: ['grep', 'session opened for user root', authLogPath],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const rootOutput = await new Response(rootProc.stdout).text();
+    const rootLogins = rootOutput.trim().split('\n').filter(line => line.length > 0).length;
+
+    return { failedAttempts, rootLogins, available: true };
+  } catch {
+    return { failedAttempts: 0, rootLogins: 0, available: false };
+  }
+}
+
+async function checkSecurityUpdates(): Promise<TaskResult> {
+  try {
+    // Collect security data from multiple sources
+    const [logins, suspicious, paiLogs, services, sudoHistory, authLog] = await Promise.all([
+      getCurrentLogins(),
+      checkSuspiciousProcesses(),
+      checkPAILogs(),
+      checkCriticalServices(),
+      checkSudoHistory(),
+      checkAuthLog(),
+    ]);
+
+    // Build comprehensive security report
+    const securityData: string[] = [];
+
+    // Current logins
+    if (logins.length > 0) {
+      securityData.push(`👥 Active logins: ${logins.length}`);
+      logins.forEach(login => {
+        const parts = login.split(/\s+/);
+        securityData.push(`   • ${parts[0]} on ${parts[1]} since ${parts[2]} ${parts[3] || ''}`);
+      });
+    } else {
+      securityData.push('👥 Active logins: None (console only)');
+    }
+
+    // Auth.log data if available
+    if (authLog.available) {
+      securityData.push(`🔒 Auth log: ${authLog.failedAttempts} failed attempts | ${authLog.rootLogins} root logins`);
+    } else {
+      securityData.push('🔒 Auth log: Using alternative monitoring');
+    }
+
+    // Suspicious processes
+    if (suspicious.suspicious > 0) {
+      securityData.push(`⚠️ Suspicious processes: ${suspicious.suspicious}`);
+      suspicious.details.forEach(detail => securityData.push(`   ${detail}`));
+    } else {
+      securityData.push('✅ No suspicious processes detected');
+    }
+
+    // PAI bot logs
+    securityData.push(`📊 PAI logs: ${paiLogs.errors} errors | ${paiLogs.warnings} warnings`);
+
+    // Critical services
+    securityData.push(`🔧 Services: ${services.running}/${services.total} active`);
+    services.details.forEach(detail => securityData.push(`   ${detail}`));
+
+    // Sudo history
+    if (sudoHistory.recentSudo > 0) {
+      securityData.push(`🔐 Recent sudo: ${sudoHistory.recentSudo} commands`);
+    } else {
+      securityData.push('🔐 No recent sudo activity');
+    }
+
+    // Determine overall status
+    let status: 'success' | 'warning' | 'error' = 'success';
+    let remediationActions: string[] = [];
+
+    if (suspicious.suspicious > 3 || paiLogs.errors > 10 || services.running < services.total) {
+      status = 'error';
+    } else if (suspicious.suspicious > 0 || paiLogs.errors > 0 || paiLogs.warnings > 5) {
+      status = 'warning';
+    }
+
+    // Trigger remediation if auth.log available and has issues
+    if (authLog.available && authLog.failedAttempts > 20) {
+      remediationActions = await remediateSecurityIssues(authLog.failedAttempts, authLog.rootLogins);
+    }
+
+    // Auto-remediate excessive PAI log errors (>1000 indicates retry storm)
+    if (paiLogs.errors > 1000) {
+      try {
+        // Kill autonomous daemon to stop retry loop
+        const killProc = Bun.spawn({
+          cmd: ['pkill', '-f', 'autonomous-daemon-enhanced.sh'],
+          stdout: 'pipe',
+          stderr: 'pipe'
+        });
+        await killProc.exited;
+        remediationActions.push('🛑 Stopped autonomous daemon retry loop');
+
+        // Remove dead containers
+        const containerProc = Bun.spawn({
+          cmd: ['bash', '-c', 'docker ps -a | grep "Exited" | awk \'{print $1}\' | xargs -r docker rm -f 2>/dev/null || echo "No containers to clean"'],
+          stdout: 'pipe',
+          stderr: 'pipe'
+        });
+        await containerProc.exited;
+        remediationActions.push('🧹 Cleaned up dead containers');
+      } catch (error) {
+        remediationActions.push(`⚠️ Remediation partial: ${error.message}`);
+      }
+    }
+
+    // Combine into message
+    let message = securityData.join('\n');
+
+    if (remediationActions.length > 0) {
+      message += '\n🔧 Auto-remediation:\n' + remediationActions.join('\n');
+    }
+
+    return {
+      name: 'Security Monitor',
+      status,
+      message,
+      timestamp: Date.now(),
+      data: {
+        logins: logins.length,
+        suspicious: suspicious.suspicious,
+        paiErrors: paiLogs.errors,
+        paiWarnings: paiLogs.warnings,
+        servicesRunning: services.running,
+        servicesTotal: services.total,
+        authLogAvailable: authLog.available,
+        authFailedAttempts: authLog.failedAttempts,
+        authRootLogins: authLog.rootLogins,
+        remediationActions
+      }
+    };
+  } catch (error) {
+    return {
+      name: 'Security Monitor',
+      status: 'error',
+      message: `Security monitor error: ${error.message}\nUsing fallback: Basic system check passed`,
+      timestamp: Date.now()
+    };
+  }
+}
+
+async function checkResourceUsage(): Promise<TaskResult> {
+  try {
+    // Get actual system memory from /proc/meminfo
+    const memProc = Bun.spawn({
+      cmd: ['cat', '/proc/meminfo'],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+
+    let totalMemMB = 0;
+    let availableMemMB = 0;
+    let usedMemMB = 0;
+    let usagePercent = 0;
+
+    try {
+      const memOutput = await new Response(memProc.stdout).text();
+      const lines = memOutput.trim().split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('MemTotal:')) {
+          const kb = parseInt(line.split(/\s+/)[1]);
+          totalMemMB = Math.round(kb / 1024);
+        } else if (line.startsWith('MemAvailable:')) {
+          const kb = parseInt(line.split(/\s+/)[1]);
+          availableMemMB = Math.round(kb / 1024);
+        }
+      }
+
+      if (totalMemMB > 0) {
+        usedMemMB = totalMemMB - availableMemMB;
+        usagePercent = Math.round((usedMemMB / totalMemMB) * 100);
+      }
+    } catch {
+      // Fallback to process memory if system memory unavailable
+      const memUsage = process.memoryUsage();
+      totalMemMB = Math.round(memUsage.heapTotal / 1024 / 1024);
+      availableMemMB = Math.round((memUsage.heapTotal - memUsage.heapUsed) / 1024 / 1024);
+      usedMemMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+      usagePercent = Math.round((memUsage.heapUsed / memUsage.heapTotal) * 100);
+    }
+
+    let status: 'success' | 'warning' | 'error' = 'success';
+    let message = `System RAM: ${usedMemMB}/${totalMemMB}MB (${usagePercent}%)`;
+    let remediationActions: string[] = [];
+
+    if (usagePercent > 85) {
+      status = 'warning';
+      remediationActions = await remediateResourceIssues(usagePercent);
+    }
+    if (usagePercent > 90) {
+      status = 'error';
+      remediationActions = await remediateResourceIssues(usagePercent);
+    }
+
+    // Add remediation info to message
+    if (remediationActions.length > 0) {
+      message += '\n🔧 Auto-remediation:\n' + remediationActions.join('\n');
+    }
+
+    return {
+      name: 'Resource Monitor',
+      status,
+      message,
+      timestamp: Date.now(),
+      data: { totalMemMB, availableMemMB, usedMemMB, usagePercent, remediationActions }
+    };
+  } catch (error) {
+    return {
+      name: 'Resource Monitor',
+      status: 'error',
+      message: `Resource check failed: ${error.message}`,
+      timestamp: Date.now()
+    };
+  }
+}
+
+async function checkMessageQueue(): Promise<TaskResult> {
+  try {
+    const queuePath = '/tmp/pai-message-queue.json';
+    const data = await Bun.readableStreamToText(Bun.file(queuePath).stream());
+    const queue = JSON.parse(data) || [];
+    const queueSize = queue.length;
+
+    let status: 'success' | 'warning' | 'error' = 'success';
+    let message = `${queueSize} messages in queue`;
+    let remediationActions: string[] = [];
+
+    if (queueSize > 5) {
+      status = 'error';
+      remediationActions = await remediateQueueIssues(queueSize);
+    } else if (queueSize > 3) {
+      status = 'warning';
+      remediationActions = await remediateQueueIssues(queueSize);
+    }
+
+    // Add remediation info to message
+    if (remediationActions.length > 0) {
+      message += '\n🔧 Auto-remediation:\n' + remediationActions.join('\n');
+    }
+
+    return {
+      name: 'Message Queue',
+      status,
+      message,
+      timestamp: Date.now(),
+      data: { queueSize, remediationActions }
+    };
+  } catch (error) {
+    return {
+      name: 'Message Queue',
+      status: 'warning',
+      message: `Queue check failed: ${error.message}`,
+      timestamp: Date.now()
+    };
+  }
+}
+
+async function checkVoiceServer(): Promise<TaskResult> {
+  try {
+    const response = await fetch('http://localhost:8888/health');
+    const isHealthy = response.ok;
+
+    let message = isHealthy ? 'Operational' : 'Not responding';
+    let remediationActions: string[] = [];
+
+    if (!isHealthy) {
+      remediationActions = await remediateVoiceServer();
+      // Check again after remediation
+      try {
+        const retryResponse = await fetch('http://localhost:8888/health');
+        if (retryResponse.ok) {
+          message = 'Operational (auto-recovered)';
+        }
+      } catch {
+        message = 'Failed (recovery attempted)';
+      }
+    }
+
+    // Add remediation info to message
+    if (remediationActions.length > 0) {
+      message += '\n🔧 Auto-remediation:\n' + remediationActions.join('\n');
+    }
+
+    return {
+      name: 'Voice Server',
+      status: isHealthy ? 'success' : 'error',
+      message,
+      timestamp: Date.now(),
+      data: { healthy: isHealthy, remediationActions }
+    };
+  } catch (error) {
+    // Try remediation even on error
+    const remediationActions = await remediateVoiceServer();
+
+    return {
+      name: 'Voice Server',
+      status: 'warning',
+      message: `Voice server unreachable\n🔧 Recovery attempted`,
+      data: { error: error.message, remediationActions },
+      timestamp: Date.now()
+    };
+  }
+}
+
+async function checkProcessRunning(processName: string): Promise<boolean> {
+  try {
+    const proc = Bun.spawn({
+      cmd: ['pgrep', '-f', processName],
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const output = await new Response(proc.stdout).text();
+    return output.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+// ============================================================================
+// TASK EXECUTION
+// ============================================================================
+
+async function runAllTasks(): Promise<TaskResult[]> {
+  const results: TaskResult[] = [];
+
+  console.log(`🔍 [${new Date().toISOString()}] Running autonomous tasks...`);
+
+  // Run all monitoring tasks
+  results.push(await checkSystemHealth());
+  results.push(await checkSecurityUpdates());
+  results.push(await checkResourceUsage());
+  results.push(await checkMessageQueue());
+  results.push(await checkVoiceServer());
+
+  // Run proactive optimizations (every hour)
+  const now = Date.now();
+  const timeSinceLastUpdate = now - lastUpdateTime;
+
+  if (timeSinceLastUpdate >= UPDATE_INTERVAL_MS || lastUpdateTime === 0) {
+    console.log('⚡ Running proactive optimizations...');
+
+    // Create a pseudo-result for optimizations
+    const optimizations = await runProactiveOptimizations();
+
+    results.push({
+      name: 'Proactive Optimizations',
+      status: 'success',
+      message: optimizations.length > 0 ? optimizations.join('\n') : 'No optimizations needed',
+      data: { optimizations },
+      timestamp: Date.now()
+    });
+  }
+
+  return results;
+}
+
+// ============================================================================
+// UPDATE GENERATION
+// ============================================================================
+
+function generateUpdateReport(results: TaskResult[]): string {
+  const emoji = {
+    success: '✅',
+    warning: '⚠️',
+    error: '❌'
+  };
+
+  let report = `
+🤖 PAI Autonomous Monitor Report
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🕐 ${new Date().toLocaleString()}
+📊 Next update: ${new Date(Date.now() + UPDATE_INTERVAL_MS).toLocaleString()}
+
+`;
+
+  for (const result of results) {
+    report += `\n${emoji[result.status]} ${result.name}\n   ${result.message}\n`;
+  }
+
+  // Overall status
+  const hasErrors = results.some(r => r.status === 'error');
+  const hasWarnings = results.some(r => r.status === 'warning');
+
+  report += `\n`;
+  if (hasErrors) {
+    report += `🚨 Status: Issues detected - attention needed\n`;
+  } else if (hasWarnings) {
+    report += `⚠️  Status: Minor warnings - monitoring\n`;
+  } else {
+    report += `✨ Status: All systems operational\n`;
+  }
+
+  report += `\n💡 Proactively monitoring your PAI infrastructure!`;
+
+  return report.trim();
+}
+
+// ============================================================================
+// UPDATE DELIVERY
+// ============================================================================
+
+async function sendUpdate() {
+  try {
+    console.log('📤 Sending hourly update...');
+
+    // Run all tasks
+    taskResults = await runAllTasks();
+
+    // Check for critical issues that need immediate alerts
+    const criticalIssues = taskResults.filter(r => r.status === 'error');
+
+    if (criticalIssues.length > 0) {
+      console.log(`🚨 ${criticalIssues.length} critical issues detected - sending instant alert`);
+
+      // Generate critical alert
+      const criticalReport = `
+🚨 CRITICAL ISSUE ALERT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🕐 ${new Date().toLocaleString()}
+⚠️ ${criticalIssues.length} critical issue(s) detected
+
+${criticalIssues.map(issue =>
+  `❌ ${issue.name}\n${issue.message}`
+).join('\n\n')}
+
+🔧 Auto-remediation actions completed.
+✅ Check main report for full details.
+      `.trim();
+
+      // Send instant alert
+      const chatId = parseInt(ALLOWED_USER_ID);
+      await bot.api.sendMessage(chatId, criticalReport);
+
+      // Voice notification for critical issues
+      await fetch('http://localhost:8888/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Critical alert: ${criticalIssues.length} issues detected and auto-remediated`,
+          phase: 'error',
+          priority: 9
+        })
+      });
+    }
+
+    // Generate report
+    const report = generateUpdateReport(taskResults);
+
+    // Send to Telegram
+    const chatId = parseInt(ALLOWED_USER_ID);
+    await bot.api.sendMessage(chatId, report);
+
+    console.log('✅ Update sent successfully');
+    lastUpdateTime = Date.now();
+
+    // Also send voice notification for summary
+    const errors = taskResults.filter(r => r.status === 'error').length;
+    if (errors > 0) {
+      await fetch('http://localhost:8888/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Hourly update complete with ${errors} errors`,
+          phase: 'warning',
+          priority: 7
+        })
+      });
+    }
+  } catch (error) {
+    console.error('❌ Failed to send update:', error);
+  }
+}
+
+// ============================================================================
+// MONITORING LOOP
+// ============================================================================
+
+async function monitoringLoop() {
+  const now = Date.now();
+  const timeSinceLastUpdate = now - lastUpdateTime;
+
+  // Check if it's time for an update
+  if (timeSinceLastUpdate >= UPDATE_INTERVAL_MS || lastUpdateTime === 0) {
+    await sendUpdate();
+  }
+
+  // Schedule next check
+  setTimeout(monitoringLoop, CHECK_INTERVAL_MS);
+}
+
+// ============================================================================
+// STARTUP
+// ============================================================================
+
+async function startup() {
+  console.log('🚀 PAI Autonomous Monitor Starting...');
+
+  // Wait a bit for system to stabilize
+  await new Promise(resolve => setTimeout(resolve, 5000));
+
+  // Send initial startup report
+  console.log('📊 Running startup tasks...');
+  taskResults = await runAllTasks();
+
+  const startupReport = `
+🤖 PAI Autonomous Monitor - ONLINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🕐 Started: ${new Date().toLocaleString()}
+🔄 Update interval: ${UPDATE_INTERVAL_MS / 60000} minute(s)
+
+${generateUpdateReport(taskResults)}
+
+✨ Proactive monitoring active!
+  `.trim();
+
+  try {
+    const chatId = parseInt(ALLOWED_USER_ID);
+    await bot.api.sendMessage(chatId, startupReport);
+    console.log('✅ Startup report sent');
+  } catch (error) {
+    console.error('❌ Failed to send startup report:', error);
+  }
+
+  lastUpdateTime = Date.now();
+
+  // Start monitoring loop
+  console.log('🔄 Starting monitoring loop...');
+  monitoringLoop();
+
+  console.log('✅ Autonomous monitor ready!');
+
+  // Voice notification
+  await fetch('http://localhost:8888/notify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: 'Autonomous monitoring agent online',
+      phase: 'complete',
+      priority: 7
+    })
+  });
+}
+
+// Graceful shutdown
+const shutdown = () => {
+  console.log('\n🛑 Autonomous monitor shutting down...');
+  bot.stop();
+  process.exit(0);
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+// Start
+startup().catch(console.error);

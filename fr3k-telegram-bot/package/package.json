@@ -1,0 +1,45 @@
+{
+  "name": "fr3k-behemoth",
+  "version": "3.6.1",
+  "description": "🌌 BEHEMOTH Cosmic Trading - Ultra-high performance crypto trading MCP server",
+  "type": "module",
+  "main": "index-no-api.js",
+  "bin": {
+    "fr3k-behemoth": "./cli.js"
+  },
+  "scripts": {
+    "start": "node index-no-api.js",
+    "setup": "node setup.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "crypto",
+    "trading",
+    "mcp",
+    "behemoth",
+    "ai",
+    "cosmic",
+    "quantum",
+    "defi",
+    "web3"
+  ],
+  "author": "FR3K",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fr3k/fr3k-behemoth"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

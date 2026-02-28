@@ -1,0 +1,78 @@
+{
+  "self_discover_modules": {
+    "version": "1.0",
+    "modules": [
+      {
+        "id": "break-steps",
+        "purpose": "Decompose complex tasks into sequential steps",
+        "trigger": "multi-step task, complex goal",
+        "template": "Let me break this down:\n1. First, I'll...\n2. Then, I'll...\n3. Finally, I'll..."
+      },
+      {
+        "id": "critical-thinking",
+        "purpose": "Question assumptions and verify claims",
+        "trigger": "uncertain requirements, potential edge cases",
+        "template": "Let me think critically:\n- What assumptions am I making?\n- What could go wrong?\n- How can I verify this?"
+      },
+      {
+        "id": "examples",
+        "purpose": "Use concrete examples to guide solution",
+        "trigger": "abstract problem, needs illustration",
+        "template": "Let me work through an example:\n[example scenario]\nThis shows that..."
+      },
+      {
+        "id": "edge-cases",
+        "purpose": "Identify and handle boundary conditions",
+        "trigger": "input validation, error handling",
+        "template": "Edge cases to consider:\n- Empty/null input\n- Maximum values\n- Concurrent access\n- Error states"
+      },
+      {
+        "id": "patterns",
+        "purpose": "Apply known design patterns",
+        "trigger": "architectural decisions, structural design",
+        "template": "Relevant patterns:\n- [Pattern Name]: [description]\n- Apply here: [implementation]"
+      },
+      {
+        "id": "work-backwards",
+        "purpose": "Start from desired outcome and reverse-engineer",
+        "trigger": "complex goal with clear end state",
+        "template": "Working backwards from the goal:\n1. Desired outcome: [X]\n2. To get [X], I need [Y]\n3. To get [Y], I need [Z]"
+      },
+      {
+        "id": "constraints",
+        "purpose": "Explicitly identify and work within constraints",
+        "trigger": "resource limits, API restrictions, requirements",
+        "template": "Constraints:\n- Must: [requirements]\n- Cannot: [restrictions]\n- Should: [preferences]"
+      },
+      {
+        "id": "perspectives",
+        "purpose": "View problem from multiple angles",
+        "trigger": "user experience, security, performance",
+        "template": "Multiple perspectives:\n- User: [needs]\n- Developer: [maintainability]\n- System: [performance]\n- Security: [risks]"
+      },
+      {
+        "id": "consistency",
+        "purpose": "Ensure internal logic and external compatibility",
+        "trigger": "integration, API design, data flow",
+        "template": "Consistency checks:\n- Internal logic: [verify]\n- External APIs: [compatibility]\n- Data structures: [coherence]"
+      },
+      {
+        "id": "simplify",
+        "purpose": "Reduce complexity while maintaining functionality",
+        "trigger": "over-engineered, convoluted solution",
+        "template": "Simplification approach:\n- Current complexity: [analyze]\n- Core need: [identify]\n- Simpler approach: [propose]"
+      }
+    ],
+    "selection_logic": {
+      "task_analysis": "extract keywords, intent, domain",
+      "module_matching": "semantic similarity between task and module purposes",
+      "composition": "select top 3-5 modules, order by relevance",
+      "execution": "apply composed structure to task"
+    },
+    "performance": {
+      "baseline_accuracy": 0.68,
+      "with_self_discover": 0.90,
+      "improvement": "32%"
+    }
+  }
+}

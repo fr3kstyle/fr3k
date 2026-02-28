@@ -1,0 +1,16 @@
+AWS Infrastructure Details
+==========================
+
+EC2 Instance:
+- IP: 52.207.242.143
+- SSH: ssh -i horizonedge.pem ubuntu@52.207.242.143
+
+Frontend:
+- URL: https://dm2ebrte765un.cloudfront.net
+
+API Gateway:
+- URL: https://81vyju9399.execute-api.us-east-1.amazonaws.com/dev
+- ID: 81vyju9399
+
+Application:
+- Login: fr3k / 666

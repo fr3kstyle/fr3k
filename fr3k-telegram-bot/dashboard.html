@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAI Observability Dashboard</title>
+  <style>
+    /* ============================================================================
+       GLASSMORPHISM DARK MODE THEME
+       ============================================================================ */
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --glass-bg: rgba(17, 24, 39, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-shadow: rgba(0, 0, 0, 0.3);
+
+      --status-online: #10b981;
+      --status-warning: #f59e0b;
+      --status-error: #ef4444;
+      --status-idle: #6b7280;
+
+      --accent-primary: #3b82f6;
+      --accent-secondary: #8b5cf6;
+      --accent-tertiary: #06b6d4;
+
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    }
+
+    /* ============================================================================
+       GLASS CARD COMPONENT
+       ============================================================================ */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow:
+        0 8px 32px var(--glass-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* ============================================================================
+       LAYOUT GRID
+       ============================================================================ */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      padding: 24px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .dashboard { grid-template-columns: 1fr; padding: 16px; }
+    }
+
+    .col-span-4 { grid-column: span 4; }
+    .col-span-2 { grid-column: span 2; }
+
+    @media (max-width: 1200px) {
+      .col-span-4 { grid-column: span 2; }
+    }
+
+    @media (max-width: 640px) {
+      .col-span-4, .col-span-2 { grid-column: span 1; }
+    }
+
+    /* ============================================================================
+       HEADER
+       ============================================================================ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .status-online { background: var(--status-online); box-shadow: 0 0 12px var(--status-online); }
+    .status-warning { background: var(--status-warning); }
+    .status-error { background: var(--status-error); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    /* ============================================================================
+       METRIC CARDS
+       ============================================================================ */
+    .metric-card h3 {
+      font-size: 0.85rem;
+      font-weight: 500;
+      opacity: 0.7;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .metric-subtitle {
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+
+    /* ============================================================================
+       LIST ITEMS
+       ============================================================================ */
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-name {
+      font-weight: 500;
+    }
+
+    .item-status {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-running {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--status-online);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-stopped {
+      background: rgba(107, 114, 128, 0.2);
+      color: var(--status-idle);
+      border: 1px solid rgba(107, 114, 128, 0.3);
+    }
+
+    /* ============================================================================
+       LOGS
+       ============================================================================ */
+    .log-entry {
+      font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+      font-size: 0.8rem;
+      padding: 6px 0;
+      opacity: 0.8;
+      border-left: 2px solid var(--accent-primary);
+      padding-left: 12px;
+      margin-bottom: 8px;
+    }
+
+    .log-timestamp {
+      color: var(--accent-tertiary);
+      font-weight: 600;
+    }
+
+    /* ============================================================================
+       LOADING STATE
+       ============================================================================ */
+    .loading {
+      opacity: 0.5;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* ============================================================================
+       EMPTY STATE
+       ============================================================================ */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* ============================================================================
+       WORKFLOW PHASE INDICATORS
+       ============================================================================ */
+    .phase-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .phase-pending { background: var(--status-idle); }
+    .phase-in_progress { background: var(--accent-primary); animation: pulse 1s infinite; }
+    .phase-completed { background: var(--status-online); }
+    .phase-failed { background: var(--status-error); }
+
+    /* ============================================================================
+       NAVIGATION BAR
+       ============================================================================ */
+    .nav-bar {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 20px;
+      margin-bottom: 8px;
+    }
+
+    .nav-section {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .nav-label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+      transform: translateX(4px);
+    }
+
+    .nav-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .nav-arrow {
+      margin-left: auto;
+      color: var(--text-muted);
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover .nav-arrow {
+      color: var(--accent-primary);
+      transform: translateX(4px);
+    }
+
+    @media (max-width: 768px) {
+      .nav-bar {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .nav-section {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- ======================================================================= -->
+    <!-- HEADER -->
+    <!-- ======================================================================= -->
+    <header class="glass-card col-span-4 header">
+      <div>
+        <h1>🤖 PAI Observability</h1>
+        <p>Real-time system monitoring dashboard</p>
+      </div>
+      <div class="status-indicator">
+        <span class="status-dot status-online" id="status-dot"></span>
+        <div>
+          <div id="connection-status" style="font-weight: 600;">Connecting...</div>
+          <div id="last-update" style="font-size: 11px; opacity: 0.7;">-</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======================================================================= -->
+    <!-- NAVIGATION -->
+    <!-- ======================================================================= -->
+    <nav class="glass-card col-span-4 nav-bar">
+      <div class="nav-section">
+        <span class="nav-label">🔍 Observability</span>
+        <a href="http://localhost:16686" target="_blank" class="nav-link">
+          <span class="nav-icon">📊</span>
+          <span>Jaeger Traces</span>
+          <span class="nav-arrow">→</span>
+        </a>
+        <a href="tests/test-report.html" target="_blank" class="nav-link" title="File: /home/fr3k/pai-telegram-bot/tests/test-report.html">
+          <span class="nav-icon">📋</span>
+          <span>Test Report</span>
+          <span class="nav-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">⚡ API Endpoints</span>
+        <a href="/api/status" target="_blank" class="nav-link">
+          <span class="nav-icon">📈</span>
+          <span>System Status</span>
+          <span class="nav-arrow">→</span>
+        </a>
+        <a href="/api/workflows" target="_blank" class="nav-link">
+          <span class="nav-icon">🔄</span>
+          <span>Workflow History</span>
+          <span class="nav-arrow">→</span>
+        </a>
+        <a href="/api/instances" target="_blank" class="nav-link">
+          <span class="nav-icon">🤖</span>
+          <span>Active Instances</span>
+          <span class="nav-arrow">→</span>
+        </a>
+        <a href="/api/conversation/8188688460" target="_blank" class="nav-link">
+          <span class="nav-icon">💬</span>
+          <span>Conversation</span>
+          <span class="nav-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">🛠️ System</span>
+        <a href="http://localhost:3000/metrics/sse" target="_blank" class="nav-link">
+          <span class="nav-icon">📡</span>
+          <span>SSE Stream</span>
+          <span class="nav-arrow">→</span>
+        </a>
+        <a href="#" onclick="location.reload(); return false;" class="nav-link">
+          <span class="nav-icon">🔄</span>
+          <span>Refresh</span>
+          <span class="nav-arrow">↻</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ======================================================================= -->
+    <!-- SYSTEM METRICS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card metric-card">
+      <h3>CPU Load</h3>
+      <div class="metric-value" id="cpu-value">-</div>
+      <div class="metric-subtitle">1min / 5min / 15min</div>
+    </div>
+
+    <div class="glass-card metric-card">
+      <h3>Memory</h3>
+      <div class="metric-value" id="memory-value">-</div>
+      <div class="metric-subtitle">Used / Total</div>
+    </div>
+
+    <div class="glass-card metric-card">
+      <h3>Uptime</h3>
+      <div class="metric-value" id="uptime-value">-</div>
+      <div class="metric-subtitle">System uptime</div>
+    </div>
+
+    <div class="glass-card metric-card">
+      <h3>Disk</h3>
+      <div class="metric-value" id="disk-value">-</div>
+      <div class="metric-subtitle">Used / Total</div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- AGENTS STATUS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card col-span-2">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">Running Agents</h3>
+      <div id="agents-list" class="loading">Loading...</div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- TELEGRAM STATUS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">Telegram Queue</h3>
+      <div class="metric-value" id="telegram-queue">-</div>
+      <div class="metric-subtitle">Messages queued</div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- VOICE STATUS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">Voice Queue</h3>
+      <div class="metric-value" id="voice-queue">-</div>
+      <div class="metric-subtitle">Notifications pending</div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SKILLS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card col-span-2">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">Skills & MCP Servers</h3>
+      <div class="list-item">
+        <span class="item-name">Skills Loaded</span>
+        <span class="item-status status-running" id="skills-count">-</span>
+      </div>
+      <div class="list-item">
+        <span class="item-name">MCP Servers</span>
+        <span class="item-status status-running" id="mcp-count">5 connected</span>
+      </div>
+      <div class="list-item">
+        <span class="item-name">Active Sessions</span>
+        <span class="item-status status-running" id="sessions-count">-</span>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- ACTIVITY LOG -->
+    <!-- ======================================================================= -->
+    <div class="glass-card col-span-2">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">System Activity</h3>
+      <div id="activity-log" style="max-height: 250px; overflow-y: auto;">
+        <div class="empty-state">
+          <p>Waiting for events...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- OBSERVABILITY: ACTIVE WORKFLOWS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card col-span-4">
+      <h3 style="margin-bottom: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+        <span>🔍 Active Workflows</span>
+        <span id="workflow-count" style="font-size: 0.8rem; opacity: 0.7;">0 active</span>
+      </h3>
+      <div id="workflows-container" style="max-height: 400px; overflow-y: auto;">
+        <div class="empty-state">
+          <p>No active workflows</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- OBSERVABILITY: WORKFLOW STATISTICS -->
+    <!-- ======================================================================= -->
+    <div class="glass-card col-span-2">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">Workflow Statistics</h3>
+      <div class="list-item">
+        <span class="item-name">Total Executions</span>
+        <span class="item-status status-running" id="wf-total">-</span>
+      </div>
+      <div class="list-item">
+        <span class="item-name">Completed</span>
+        <span class="item-status status-running" id="wf-completed">-</span>
+      </div>
+      <div class="list-item">
+        <span class="item-name">Failed</span>
+        <span class="item-status status-stopped" id="wf-failed">-</span>
+      </div>
+      <div class="list-item">
+        <span class="item-name">Avg Duration</span>
+        <span class="item-status status-running" id="wf-avg-duration">-</span>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- OBSERVABILITY: TRACE VIEWER -->
+    <!-- ======================================================================= -->
+    <div class="glass-card col-span-2">
+      <h3 style="margin-bottom: 20px; font-weight: 600;">📊 Trace Viewer</h3>
+      <div id="trace-viewer" style="max-height: 300px; overflow-y: auto;">
+        <div class="empty-state">
+          <p>Select a workflow to view trace</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- JAVASCRIPT -->
+  <!-- ======================================================================== -->
+  <script>
+    // ============================================================================
+    // STATE
+    // ============================================================================
+    const state = {
+      agents: [],
+      system: {},
+      telegram: {},
+      voice: {},
+      skills: {},
+      sessions: {},
+      logs: []
+    };
+
+    // ============================================================================
+    // SSE CONNECTION
+    // ============================================================================
+    const eventSource = new EventSource('http://localhost:3000/metrics/sse');
+
+    // Immediately check connection status
+    setTimeout(() => {
+      if (eventSource.readyState === EventSource.OPEN) {
+        updateConnectionStatus(true);
+      }
+    }, 100);
+
+    // ============================================================================
+    // EVENT HANDLERS
+    // ============================================================================
+    eventSource.addEventListener('connected', (e) => {
+      console.log('✅ Connected to PAI Metrics Server');
+      updateConnectionStatus(true);
+    });
+
+    eventSource.addEventListener('system-update', (e) => {
+      state.system = JSON.parse(e.data);
+      updateSystemUI();
+    });
+
+    eventSource.addEventListener('agents-update', (e) => {
+      state.agents = JSON.parse(e.data);
+      updateAgentsUI();
+    });
+
+    eventSource.addEventListener('telegram-update', (e) => {
+      state.telegram = JSON.parse(e.data);
+      updateTelegramUI();
+    });
+
+    eventSource.addEventListener('voice-update', (e) => {
+      state.voice = JSON.parse(e.data);
+      updateVoiceUI();
+    });
+
+    eventSource.addEventListener('skills-update', (e) => {
+      state.skills = JSON.parse(e.data);
+      updateSkillsUI();
+    });
+
+    eventSource.addEventListener('sessions-update', (e) => {
+      state.sessions = JSON.parse(e.data);
+      updateSessionsUI();
+    });
+
+    // ============================================================================
+    // CONNECTION STATUS
+    // ============================================================================
+    eventSource.onopen = () => {
+      updateConnectionStatus(true);
+    };
+
+    eventSource.onerror = () => {
+      console.error('❌ SSE connection error');
+      updateConnectionStatus(false);
+    };
+
+    // Fallback: If not connected after 3 seconds, show degraded mode
+    setTimeout(() => {
+      if (eventSource.readyState === EventSource.CONNECTING) {
+        console.warn('⚠️ SSE connection taking longer than expected');
+        updateConnectionStatus(false);
+      }
+    }, 3000);
+
+    function updateConnectionStatus(connected) {
+      const dot = document.getElementById('status-dot');
+      const status = document.getElementById('connection-status');
+
+      if (connected) {
+        dot.className = 'status-dot status-online';
+        status.textContent = 'Connected';
+      } else {
+        dot.className = 'status-dot status-error';
+        status.textContent = 'Disconnected - Reconnecting...';
+      }
+    }
+
+    // ============================================================================
+    // UI UPDATE FUNCTIONS
+    // ============================================================================
+    function updateLastUpdate() {
+      document.getElementById('last-update').textContent =
+        'Last update: ' + new Date().toLocaleTimeString();
+    }
+
+    function updateSystemUI() {
+      document.getElementById('cpu-value').textContent = state.system.cpu || '-';
+      document.getElementById('memory-value').textContent = state.system.memory || '-';
+      document.getElementById('uptime-value').textContent = state.system.uptime || '-';
+      document.getElementById('disk-value').textContent = state.system.disk || '-';
+      updateLastUpdate();
+    }
+
+    function updateAgentsUI() {
+      const container = document.getElementById('agents-list');
+
+      if (!state.agents || state.agents.length === 0) {
+        container.innerHTML = '<div class="empty-state">No agents found</div>';
+        return;
+      }
+
+      container.innerHTML = state.agents.map(agent => `
+        <div class="list-item">
+          <span class="item-name">${agent.name}</span>
+          <span class="item-status ${agent.running ? 'status-running' : 'status-stopped'}">
+            ${agent.running ? '● Running (PID ' + agent.pid + ')' : '○ Stopped'}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function updateTelegramUI() {
+      document.getElementById('telegram-queue').textContent = state.telegram.queueSize || 0;
+    }
+
+    function updateVoiceUI() {
+      document.getElementById('voice-queue').textContent = state.voice.queueSize || 0;
+    }
+
+    function updateSkillsUI() {
+      document.getElementById('skills-count').textContent = state.skills.loaded || 0 + ' loaded';
+    }
+
+    function updateSessionsUI() {
+      document.getElementById('sessions-count').textContent = state.sessions.active || 0 + ' active';
+    }
+
+    // ============================================================================
+    // ACTIVITY LOG
+    // ============================================================================
+    function addLogEntry(message, type = 'info') {
+      const logContainer = document.getElementById('activity-log');
+      const timestamp = new Date().toLocaleTimeString();
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+
+      // Remove empty state if exists
+      const emptyState = logContainer.querySelector('.empty-state');
+      if (emptyState) emptyState.remove();
+
+      // Add new entry
+      logContainer.insertBefore(entry, logContainer.firstChild);
+
+      // Keep only last 20 entries
+      while (logContainer.children.length > 20) {
+        logContainer.removeChild(logContainer.lastChild);
+      }
+    }
+
+    // Log agent status changes
+    let previousAgents = [];
+    setInterval(() => {
+      state.agents.forEach(agent => {
+        const prevAgent = previousAgents.find(a => a.name === agent.name);
+        if (prevAgent && prevAgent.running !== agent.running) {
+          addLogEntry(`${agent.name}: ${agent.running ? 'Started' : 'Stopped'}`, agent.running ? 'success' : 'error');
+        }
+      });
+      previousAgents = [...state.agents];
+    }, 2000);
+
+    // ============================================================================
+    // OBSERVABILITY: Workflow UI
+    // ============================================================================
+
+    // Listen for workflow updates
+    eventSource.addEventListener('workflows-update', (e) => {
+      state.workflows = JSON.parse(e.data);
+      updateWorkflowsUI();
+    });
+
+    eventSource.addEventListener('workflow-started', (e) => {
+      const data = JSON.parse(e.data);
+      addLogEntry(`🚀 Workflow started: ${data.execution.message.text.substring(0, 30)}...`, 'success');
+      fetchWorkflows();
+    });
+
+    eventSource.addEventListener('workflow-completed', (e) => {
+      const data = JSON.parse(e.data);
+      addLogEntry(`✅ Workflow completed in ${data.execution.duration}ms`, 'success');
+      fetchWorkflows();
+    });
+
+    eventSource.addEventListener('workflow-failed', (e) => {
+      const data = JSON.parse(e.data);
+      addLogEntry(`❌ Workflow failed: ${data.execution.message.text.substring(0, 30)}...`, 'error');
+      fetchWorkflows();
+    });
+
+    eventSource.addEventListener('workflow-phase', (e) => {
+      const data = JSON.parse(e.data);
+      addLogEntry(`⚙️ Phase: ${data.execution.phases?.[data.execution.phases.length - 1]?.name}`, 'info');
+    });
+
+    eventSource.addEventListener('message-added', (e) => {
+      const data = JSON.parse(e.data);
+      addLogEntry(`💬 Message from user: ${data.message.text.substring(0, 30)}...`, 'info');
+    });
+
+    function updateWorkflowsUI() {
+      const container = document.getElementById('workflows-container');
+      const countEl = document.getElementById('workflow-count');
+
+      if (!state.workflows || state.workflows.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No active workflows</p></div>';
+        countEl.textContent = '0 active';
+        return;
+      }
+
+      countEl.textContent = `${state.workflows.length} active`;
+
+      container.innerHTML = state.workflows.map(wf => {
+        const elapsed = Date.now() - wf.startTime;
+        const elapsedSec = Math.floor(elapsed / 1000);
+        const currentPhase = wf.phases?.find(p => p.status === 'in_progress');
+
+        return `
+          <div class="list-item" style="flex-direction: column; align-items: flex-start; cursor: pointer; padding: 16px;"
+               onclick="showWorkflowTrace('${wf.traceId}')">
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
+              <span class="item-name" style="font-weight: 600;">📝 ${wf.message.text.substring(0, 40)}...</span>
+              <span style="font-size: 0.75rem; opacity: 0.7;">${elapsedSec}s ago</span>
+            </div>
+            <div style="display: flex; gap: 12px; width: 100%; font-size: 0.75rem;">
+              ${currentPhase ? `<span style="color: var(--accent-primary);">▶ ${currentPhase.name}</span>` : ''}
+              <span style="opacity: 0.7;">Trace: ${wf.traceId.substring(0, 8)}...</span>
+            </div>
+            ${wf.phases && wf.phases.length > 0 ? `
+              <div style="margin-top: 8px; display: flex; gap: 4px;">
+                ${['OBSERVE', 'THINK', 'PLAN', 'BUILD', 'EXECUTE', 'VERIFY', 'LEARN'].map(phase => {
+                  const phaseData = wf.phases.find(p => p.name === phase);
+                  const status = phaseData?.status || 'pending';
+                  const color = status === 'completed' ? 'var(--status-online)' :
+                                status === 'in_progress' ? 'var(--accent-primary)' :
+                                status === 'failed' ? 'var(--status-error)' : 'var(--status-idle)';
+                  return `<span style="font-size: 8px; padding: 2px 6px; border-radius: 4px; background: ${color}20; color: ${color};">${phase[0]}</span>`;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showWorkflowTrace(traceId) {
+      fetch(`http://localhost:3000/api/workflows/${traceId}`)
+        .then(res => res.json())
+        .then(wf => {
+          const viewer = document.getElementById('trace-viewer');
+          viewer.innerHTML = `
+            <div style="padding: 12px;">
+              <h4 style="margin-bottom: 12px;">Trace: ${wf.traceId.substring(0, 16)}...</h4>
+              <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 12px;">
+                <div><strong>User:</strong> ${wf.message.userId}</div>
+                <div><strong>Message:</strong> ${wf.message.text}</div>
+                <div><strong>Status:</strong> ${wf.status}</div>
+                <div><strong>Duration:</strong> ${wf.duration ? Math.floor(wf.duration / 1000) + 's' : 'In progress'}</div>
+              </div>
+              ${wf.phases && wf.phases.length > 0 ? `
+                <h5 style="margin-bottom: 8px; margin-top: 12px;">Phases:</h5>
+                ${wf.phases.map(p => `
+                  <div style="padding: 6px; margin-bottom: 4px; border-radius: 4px; background: rgba(255,255,255,0.05);">
+                    <div style="display: flex; justify-content: space-between;">
+                      <span>${p.name}</span>
+                      <span style="opacity: 0.7;">${p.status}</span>
+                    </div>
+                    ${p.duration ? `<div style="font-size: 0.7rem; opacity: 0.6;">${p.duration}ms</div>` : ''}
+                  </div>
+                `).join('')}
+              ` : ''}
+            </div>
+          `;
+        });
+    }
+
+    function fetchWorkflows() {
+      fetch('http://localhost:3000/api/workflows')
+        .then(res => res.json())
+        .then(data => {
+          state.workflows = data.active;
+          updateWorkflowsUI();
+
+          // Update statistics
+          document.getElementById('wf-total').textContent = data.statistics.total || 0;
+          document.getElementById('wf-completed').textContent = data.statistics.completed || 0;
+          document.getElementById('wf-failed').textContent = data.statistics.failed || 0;
+          document.getElementById('wf-avg-duration').textContent =
+            data.statistics.avgDuration ? Math.floor(data.statistics.avgDuration / 1000) + 's' : '-';
+        });
+    }
+
+    // ============================================================================
+    // INITIAL DATA FETCH
+    // ============================================================================
+    fetch('http://localhost:3000/api/status')
+      .then(res => res.json())
+      .then(data => {
+        state.system = data.system;
+        state.agents = data.agents;
+        state.telegram = data.telegram;
+        state.voice = data.voice;
+        state.skills = data.skills;
+        state.sessions = data.sessions;
+
+        updateSystemUI();
+        updateAgentsUI();
+        updateTelegramUI();
+        updateVoiceUI();
+        updateSkillsUI();
+        updateSessionsUI();
+
+        addLogEntry('Dashboard initialized successfully');
+      })
+      .catch(err => {
+        console.error('Failed to fetch initial data:', err);
+        addLogEntry('Failed to connect to metrics server', 'error');
+      });
+
+    // Also fetch initial workflows
+    fetchWorkflows();
+      .then(res => res.json())
+      .then(data => {
+        state.system = data.system;
+        state.agents = data.agents;
+        state.telegram = data.telegram;
+        state.voice = data.voice;
+        state.skills = data.skills;
+        state.sessions = data.sessions;
+
+        updateSystemUI();
+        updateAgentsUI();
+        updateTelegramUI();
+        updateVoiceUI();
+        updateSkillsUI();
+        updateSessionsUI();
+
+        addLogEntry('Dashboard initialized successfully');
+      })
+      .catch(err => {
+        console.error('Failed to fetch initial data:', err);
+        addLogEntry('Failed to connect to metrics server', 'error');
+      });
+
+    // ============================================================================
+    // KEEP ALIVE
+    // ============================================================================
+    setInterval(() => {
+      if (eventSource.readyState === EventSource.OPEN) {
+        addLogEntry('System heartbeat - all metrics flowing', 'info');
+      }
+    }, 60000); // Every minute
+  </script>
+</body>
+</html>

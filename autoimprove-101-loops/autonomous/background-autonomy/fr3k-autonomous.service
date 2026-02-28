@@ -1,0 +1,40 @@
+[Unit]
+Description=FR3K Autonomous Agent - Continuous Self-Improvement System
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fr3k
+Group=fr3k
+WorkingDirectory=/mnt/sdcard/claude-integrations/autonomous
+Environment="PATH=/usr/bin:/bin:/home/fr3k/.bun/bin"
+Environment="NODE_ENV=production"
+Environment="GITHUB_TOKEN=%GITHUB_TOKEN%"
+
+# Main autonomous process
+ExecStart=/usr/bin/bun run github-agent/autonomous-github-agent.ts
+
+# Restart policy
+Restart=always
+RestartSec=30s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fr3k-autonomous
+
+# Resource limits
+MemoryMax=2G
+CPUQuota=200%
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/mnt/sdcard/claude-integrations
+ReadWritePaths=/var/log/fr3k
+
+[Install]
+WantedBy=multi-user.target

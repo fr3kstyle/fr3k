@@ -1,0 +1,58 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+*.aws
+*.google
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data
+*.pid
+*.pids
+/tmp/
+
+# Logs
+logs/
+*.log
+
+# Claude Code
+.claude/transcripts/
+.claude/debug/
+.claude/cache/
+.claude/shell-snapshots/
+
+# FR3K runtime
+.fr3k/logs/
+.fr3k/sessions/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Package manager
+bun.lockb
+package-lock.json
+yarn.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -1,0 +1,2 @@
+/** Decision Maker */
+export class Decider 1 { process(input: any) { return { processed: true, timestamp: Date.now() }; } }

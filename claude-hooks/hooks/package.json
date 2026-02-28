@@ -1,0 +1,8 @@
+{
+  "name": "claude-hooks",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "yaml": "^2.8.2"
+  }
+}
