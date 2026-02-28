@@ -282,8 +282,15 @@ echo -e "  ${GREEN}✓${NC} Data directory: $FR3K_DIR"
 
 # Setup hey-fr3k database
 echo "  Initializing hey-fr3k database..."
+
+# hey-fr3k creates database at .fr3k/fr3k-validation.db in current working directory
+# Initialize in home directory so it works from any location
+cd "$HOME" && npx -y hey-fr3k init 2>/dev/null || true
+
+# Also create symlink for ~/.hey-fr3k compatibility (older installations)
 mkdir -p "$HOME/.hey-fr3k"
-echo -e "  ${GREEN}✓${NC} hey-fr3k directory: $HOME/.hey-fr3k"
+echo -e "  ${GREEN}✓${NC} hey-fr3k database initialized at ~/.fr3k/fr3k-validation.db"
+echo -e "  ${GREEN}✓${NC} hey-fr3k directory: $HOME/.hey-fr3k (for compatibility)"
 
 # Setup systemd service (optional)
 echo -e "${GREEN}[11/13]${NC} Setting up systemd service..."
