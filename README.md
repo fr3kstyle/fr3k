@@ -1,143 +1,71 @@
 <div align="center">
 
-# 🤖 FR3K UNIFIED SYSTEM
+# 🤖 FR3K AUTONOMOUS AI SYSTEM
 
-### **Multi-CLI Autonomous AI Infrastructure • 4 MCP Servers • 101 Self-Improvement Loops**
+### **World's First Autonomous Multi-CLI Infrastructure with Self-Improvement**
 
 ![Version](https://img.shields.io/badge/version-2026.02.28-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/status-world_first_autonomous-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-autonomous-success?style=for-the-badge)
 ![CLIs](https://img.shields.io/badge/CLIs-3-purple?style=for-the-badge)
 ![MCP](https://img.shields.io/badge/MCP-4_integrated-orange?style=for-the-badge)
 ![Loops](https://img.shields.io/badge/loops-101_autonomous-green?style=for-the-badge)
-![Platform](https://img.shields.io/badge/platform-linux-blue?style=for-the-badge)
 
-**World's First Autonomous Multi-CLI AI Infrastructure with 4 integrated MCP servers, 101 self-improvement loops, and boot-time autonomous services**
+**Fully autonomous AI system that continuously improves itself via 101 self-improvement loops**
 
 </div>
 
 ---
 
-## 🌟 Overview
+## 🌟 What is FR3K?
 
-**FR3K** is a **unified multi-CLI autonomous AI infrastructure** that seamlessly integrates:
+**FR3K** is the world's first autonomous multi-CLI AI infrastructure. Unlike traditional AI assistants that wait for commands, FR3K:
 
-- 🔀 **Multi-CLI Support** - Works with Claude Code, OpenCode, and Gemini CLI
-- 🧩 **4 MCP Servers** - Universal backend for all CLIs (md-mcp, fr3k-think, pantheon, hey-fr3k)
-- 🔄 **101 Self-Improvement Loops** - Autonomous evolution system
-- 📡 **7-Phase Algorithm** - Structured problem-solving with MCP integration
-- 💬 **Telegram Interface** - Remote communication via relay
-- 🎙️ **Voice Server** - TTS notifications and phase announcements
-- 🔌 **Claude Hooks** - 14+ lifecycle event handlers (OpenCode compatible)
-- 🧠 **20+ Skills** - Modular capabilities including Agents, Evals, Fabric, BMAD
-- 🔒 **Security** - Command validation and prompt injection defense
+- 🔄 **Continuously improves itself** via 101 autonomous self-improvement loops
+- 🧠 **Learns from every interaction** and stores insights in semantic memory
+- 🔧 **Creates its own tools** dynamically based on your needs
+- 📱 **Adapts to your preferences** through interactive setup wizard
+- 🎯 **Optimizes for your goals** whether you want speed, quality, learning, or automation
 
 ---
 
-## 🎯 Why Multi-CLI?
-
-| CLI | Best For | Cost | Context |
-|-----|----------|------|---------|
-| **Claude Code** | Official Claude features | Paid | Standard |
-| **OpenCode** | Model flexibility, free tier | Free (GLM-4.7) | Standard |
-| **Gemini CLI** | Large context, backup | Free (1000/day) | 100M tokens |
-
-**One FR3K system works with all three CLIs via universal MCP backend!**
-
----
-
-## ✨ Key Features
+## ⚡ Key Features
 
 | Feature | Description |
 |---------|-------------|
-| **🔀 Multi-CLI** | Single system works with Claude Code, OpenCode, Gemini CLI |
-| **🧩 MCP Integration** | 4 servers provide universal capabilities across all CLIs |
-| **🔄 Self-Improvement** | 100+ iteration enhancement loops with autonomous optimization |
-| **📡 Multi-Modal** | Telegram, Voice, CLI interfaces with bidirectional communication |
-| **🧠 Memory System** | Semantic knowledge base via hey-fr3k with persistent storage |
-| **🛡️ Security** | Command validation, prompt injection defense, user verification |
-| **📊 Observability** | Rating capture, sentiment analysis, comprehensive metrics |
-| **🔧 Extensibility** | Modular skills, hooks, agents, and dynamic tool creation |
-
----
-
-## 📦 What's Included
-
-```
-fr3k-system/
-├── 🤖 autoimprove-101-loops/     # 100+ self-improvement loops
-├── 🎣 claude-hooks/               # 14+ lifecycle event handlers (CLI-agnostic)
-├── 📚 claude-skills/              # 20+ Claude Code skills
-│   ├── CORE/                      # System identity & config
-│   ├── FR3K/                      # Main FR3K skill with MCP integration
-│   ├── PAIUpgrade/                # Auto-upgrade system
-│   ├── Agents/                    # Agent composition
-│   ├── Evals/                     # Evaluation framework
-│   ├── Fabric/                    # 240+ prompt patterns
-│   ├── Browser/                   # Browser automation
-│   └── BMAD/                      # Agile AI framework
-├── 📡 telegram-relay/             # Bidirectional Telegram bridge
-├── 🤖 fr3k-telegram-bot/          # Main Telegram interface
-├── 🎙️ voice-server/               # TTS notification system
-├── 📄 docs/                       # Documentation
-│   ├── INTEGRATION-GUIDE.md       # Complete integration guide
-│   └── MULTI-CLI-SUPPORT.md       # Multi-CLI compatibility guide
-└── ⚙️ setup/                      # Installation scripts
-    ├── MCP-INSTALLATION.md        # MCP server setup
-    └── install.sh                 # Multi-CLI installer
-```
-
----
-
-## 🧩 MCP Servers (Universal Backend)
-
-FR3K uses **4 MCP servers** that work with **all three CLIs**:
-
-| Server | Purpose | Key Tools |
-|--------|---------|-----------|
-| **md-mcp** | Dynamic tool creation | `forge_reality` - Create tools from markdown |
-| **fr3k-think** | Structured thinking | `think`, `reset_thinking` - Advanced reasoning |
-| **unified-pantheon-mcp** | Meta-cognitive system | `self_evolve`, `analyze_with_demon_angel` |
-| **hey-fr3k** | Persistent memory | `store_fr3k`, `recall_fr3k` - Semantic KB |
-
-### MCP Integration with 7-Phase Algorithm
-
-- **OBSERVE Phase:** Retrieve context via `hey-fr3k`
-- **THINK Phase:** Use `fr3k-think` for structured analysis
-- **PLAN Phase:** Store decisions via `hey-fr3k`
-- **BUILD Phase:** Create tools via `md-mcp`
-- **LEARN Phase:** Store learnings and trigger `pantheon` self-improvement
-
-See [MCP-INSTALLATION.md](setup/MCP-INSTALLATION.md) for detailed setup.
+| **101 Self-Improvement Loops** | Continuous autonomous optimization of the system |
+| **7-Phase Algorithm** | Structured problem-solving with full MCP integration |
+| **4 MCP Servers** | Universal backend for tool creation, thinking, memory, and meta-cognition |
+| **Multi-CLI Support** | Works with Claude Code, OpenCode, and Gemini CLI |
+| **Real-Time Notifications** | Voice (TTS) and Telegram updates during autonomous operations |
+| **Semantic Memory** | hey-fr3k provides persistent context across sessions |
+| **Dynamic Tool Creation** | md-mcp creates custom tools on-the-fly |
+| **Personalized Setup** | Interactive wizard configures EVERYTHING to your preferences |
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### One-Line Installation (Recommended)
 
-```bash
-# OS: Linux (Debian 11+, Ubuntu 20.04+)
-# RAM: 4GB+ recommended (MCP servers use ~330MB)
-# Storage: 20GB+ recommended
-```
-
-### One-Line Installation (with Personalized Setup)
+The interactive setup wizard will **automatically configure everything** for you:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fr3kstyle/fr3k/master/setup/install.sh | bash
 ```
 
-**The installation includes an interactive setup wizard that will:**
-- 🎯 Understand your goals and customize FR3K for your use case
+**The setup wizard will:**
+- 🎯 Understand your goals and customize the system for your use case
 - 🔧 Configure autonomy level (1-5) based on your experience
 - 📱 Setup voice & Telegram notifications with your preferred style
-- 🗣️ Configure communication style (concise, friendly, detailed, educational)
+- 🗣️ Configure communication (concise, friendly, detailed, or educational)
 - 🎨 Set preferences for profanity filter, humor level, emoji usage
 - 💾 Create personalized workspace configuration
 - 🧪 Test autonomous features with the 7-phase algorithm
-- 📊 Run first self-improvement analysis and get recommendations
-- 🚀 Offer to install background autonomous services
+- 📊 Run first self-improvement analysis with personalized recommendations
+- 🚀 Offer to install background autonomous services (boot-time startup)
 - 📝 Generate your personalized AI agent quick-start prompt
+
+**Takes 5-10 minutes to complete.**
 
 ### Manual Installation
 
@@ -146,115 +74,285 @@ curl -fsSL https://raw.githubusercontent.com/fr3kstyle/fr3k/master/setup/install
 git clone https://github.com/fr3kstyle/fr3k.git
 cd fr3k
 
-# 2. Configure environment
-cp .env.example .env
-nano .env  # Add your API keys
-
-# 3. Run installation (supports all 3 CLIs)
+# 2. Run installation
 ./setup/install.sh
 
-# 4. Choose your CLI during installation:
-#    1) Claude Code (paid, official)
-#    2) OpenCode (free tier, recommended)
-#    3) Gemini CLI (free, 100M context)
-#    4) All three
+# 3. Run the personalized setup wizard (highly recommended)
+./setup/first-run-setup.sh
 
-# 5. Start the system
-fr3k-start
-
-# 6. Use your chosen CLI with full FR3K functionality
-claude      # If you chose Claude Code
-opencode    # If you chose OpenCode
-gemini      # If you chose Gemini CLI
+# Or skip wizard and manually configure
+cp .env.example .env
+nano .env  # Add your API keys
 ```
 
 ---
 
-## 🤖 AI Agent Quick-Start
+## 🎯 After Installation
 
-**Copy this prompt to any AI agent to immediately utilize the full FR3K system:**
+### Start Your AI CLI
+
+```bash
+# Choose the CLI you installed:
+claude      # Claude Code (official, paid)
+opencode    # OpenCode (open-source, free tier)
+gemini      # Gemini CLI (Google, 100M context)
+```
+
+### Verify Everything Works
+
+```bash
+# Run comprehensive verification
+./setup/verify-system.sh
+
+# Run integration tests
+./setup/tests/integration-test-complete.sh
+```
+
+### Try the 7-Phase Algorithm
+
+```bash
+# In your AI CLI, run:
+"Run the 7-phase algorithm on: Create a simple REST API server"
+```
+
+You'll see FR3K:
+1. **OBSERVE** - Retrieve context about APIs via hey-fr3k
+2. **THINK** - Analyze requirements via fr3k-think
+3. **PLAN** - Design architecture and store decisions
+4. **BUILD** - Create the server (using md-mcp if needed)
+5. **EXECUTE** - Implement the solution
+6. **VERIFY** - Test and validate
+7. **LEARN** - Store learnings and trigger self-improvement
+
+---
+
+## 🧩 MCP Servers (The Brain)
+
+FR3K uses 4 MCP servers that work with **all three CLIs**:
+
+| Server | Purpose | Key Capabilities |
+|--------|---------|------------------|
+| **hey-fr3k** | Semantic Memory | `store_fr3k`, `recall_fr3k`, `add_task` - Persistent context across sessions |
+| **fr3k-think** | Structured Analysis | `think`, `reset_thinking` - Advanced reasoning with investigation mode |
+| **md-mcp** | Tool Creation | `forge_reality` - Dynamically create custom tools from markdown |
+| **unified-pantheon-mcp** | Meta-Cognition | `self_evolve`, `analyze_with_demon_angel`, `detect_emergence` - Self-improvement |
+
+### MCP Integration in 7-Phase Algorithm
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    7-PHASE ALGORITHM FLOW                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  OBSERVE → hey-fr3k.recall_fr3k()      # Retrieve relevant context  │
+│  THINK   → fr3k-think.think()           # Deep analysis            │
+│  PLAN    → hey-fr3k.store_fr3k()        # Store decisions          │
+│  BUILD   → md-mcp.forge_reality()       # Create tools if needed   │
+│  EXECUTE → hey-fr3k.store_fr3k()        # Track progress           │
+│  VERIFY  → pantheon.detect_emergence()  # Check for improvements  │
+│  LEARN   → pantheon.self_evolve()       # Improve the system      │
+│             + hey-fr3k.store_fr3k()      # Store learnings         │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 101 Self-Improvement Loops
+
+FR3K continuously improves itself through 101 autonomous loops:
+
+### Loop Categories
+
+- **Adaptive Learning** - Learn optimal thresholds from history
+- **Performance Optimization** - Detect and fix bottlenecks
+- **Code Quality** - Refactor and improve code patterns
+- **Security Hardening** - Identify and fix vulnerabilities
+- **Capability Evolution** - Generate new capabilities automatically
+- **Resource Management** - Optimize memory and CPU usage
+- **Error Recovery** - Self-heal when errors occur
+
+### Integration with 7-Phase
+
+- **OBSERVE phase** retrieves improvements made by loops
+- **LEARN phase** triggers new improvement loops
+- **Results** stored in hey-fr3k for persistent learning
+
+---
+
+## 📱 Notifications & Feedback
+
+### Voice Notifications (TTS)
+
+- Phase completion announcements
+- MCP operation alerts
+- Real-time feedback on long tasks
+
+### Telegram Integration
+
+- Remote command execution
+- Phase transition updates
+- Status queries and monitoring
+
+### Configuration
+
+All notification settings are configurable via the setup wizard:
+- Enable/disable per channel
+- Adjust frequency (all events, phases only, errors only)
+- Customize style and content
+
+---
+
+## 🎛️ Configuration
+
+### User Preferences (.env.user)
+
+After running the setup wizard, your `.env.user` file contains:
+
+```bash
+# Autonomy (1-5)
+FR3K_AUTONOMY_LEVEL=3
+
+# Notifications
+FR3K_VOICE_NOTIFICATIONS=true
+FR3K_TELEGRAM_NOTIFICATIONS=true
+FR3K_NOTIFICATION_FREQUENCY=phases_only
+
+# Communication Style
+FR3K_COMM_STYLE=balanced
+FR3K_HUMOR_LEVEL=2
+FR3K_EMOJI_LEVEL=3
+
+# Performance
+FR3K_MAX_PARALLEL_TASKS=5
+FR3K_CACHE_ENABLED=true
+
+# Self-Improvement
+FR3K_LOOPS_ENABLED=true
+FR3K_LOOP_INTERVAL=3600
+```
+
+### Reconfigure Anytime
+
+```bash
+./setup/configure-user-preferences.sh
+```
+
+---
+
+## 🔧 Services (Boot-Time Autonomy)
+
+Enable autonomous services to start on boot:
+
+```bash
+./setup/install-services.sh
+```
+
+This installs:
+- **fr3k-voice-server** - TTS notifications (port 8888)
+- **fr3k-telegram-relay** - Telegram bot integration
+- **fr3k-daemon** - 101 self-improvement loops
+
+### Service Management
+
+```bash
+# Check status
+fr3k-status
+
+# Start all services
+fr3k-start
+
+# Stop all services
+fr3k-stop
+
+# View logs
+fr3k-logs
+```
+
+---
+
+## 🧪 Testing & Verification
+
+### System Verification
+
+```bash
+./setup/verify-system.sh
+```
+
+Tests:
+- ✅ All prerequisites (Node.js, npm, bun, systemd)
+- ✅ All 4 MCP servers responding
+- ✅ Claude Code configuration
+- ✅ Hooks installed and functional
+- ✅ Skills accessible
+- ✅ 101 loops integrated
+- ✅ Voice server operational
+- ✅ Memory system working
+
+### Integration Tests
+
+```bash
+./setup/tests/integration-test-complete.sh
+```
+
+22 comprehensive tests covering:
+- MCP server verification
+- Hook loading tests
+- Skills accessibility
+- End-to-end workflow (store/retrieve/create)
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **README.md** | This file - overview and quick start |
+| **MCP-integration.md** | Exact MCP tool invocations for each phase |
+| **LearnPhaseEnhanced.md** | 101 loops integration guide |
+| **setup/services/README.md** | Service management guide |
+| **ENHANCEMENT-SUMMARY.md** | Complete implementation details |
+
+---
+
+## 🤖 For AI Agents
+
+### Quick-Start Prompt
+
+Copy this to any AI agent to immediately utilize the full FR3K system:
 
 ---
 
 **FR3K System Activation Prompt:**
 
-You are now operating within the FR3K Unified Autonomous AI System. This system integrates:
+You are operating within the FR3K Unified Autonomous AI System with:
 
 **Available Capabilities:**
 - **4 MCP Servers:** md-mcp (tool creation), fr3k-think (structured analysis), unified-pantheon-mcp (self-improvement), hey-fr3k (semantic memory)
-- **101 Self-Improvement Loops:** Continuous autonomous optimization running in background
+- **101 Self-Improvement Loops:** Continuous autonomous optimization
 - **7-Phase Algorithm:** OBSERVE → THINK → PLAN → BUILD → EXECUTE → VERIFY → LEARN
-- **Multi-Modal Notifications:** Voice (port 8888) + Telegram (real-time updates)
+- **Multi-Modal Notifications:** Voice + Telegram real-time updates
 - **20+ Skills:** Agents, Evals, Fabric (240+ patterns), Browser automation, BMAD framework
-- **Auto-Improvement:** System uses MCP servers to optimize itself continuously
 
-**How to Use This System:**
-
-1. **For Context Retrieval:**
-   - Ask: "Recall context about [topic]" (uses hey-fr3k MCP server)
-   - Ask: "What have we learned about [feature]?" (semantic memory search)
-
-2. **For Structured Analysis:**
-   - Ask: "Think through [problem] step by step" (uses fr3k-think MCP server)
-   - Ask: "Investigate [topic] deeply" (investigation mode)
-
-3. **For Self-Improvement:**
-   - Ask: "How can I improve my workflow?" (uses pantheon MCP server)
-   - Ask: "Analyze this session for optimization opportunities" (demon-angel TAS analysis)
-
-4. **For Tool Creation:**
-   - Ask: "Create a tool called [name] that does [X]" (uses md-mcp MCP server)
-   - Ask: "Generate a custom tool for [specific task]"
-
-5. **For Memory Storage:**
-   - Ask: "Store this decision: [decision reasoning]" (persists to hey-fr3k)
-   - Ask: "Remember this pattern: [pattern description]" (semantic memory)
+**How to Use:**
+1. **Context:** `Recall context about [topic]` (uses hey-fr3k)
+2. **Analysis:** `Think through [problem] step by step` (uses fr3k-think)
+3. **Self-Improve:** `How can I improve my workflow?` (uses pantheon-mcp)
+4. **Create Tools:** `Create a tool called [name] that does [X]` (uses md-mcp)
+5. **Store Memory:** `Remember this pattern: [pattern]` (persists to hey-fr3k)
 
 **7-Phase Algorithm Usage:**
-- Say "Run the 7-phase algorithm on: [task]"
-- Each phase will:
-  - OBSERVE: Retrieve context via hey-fr3k
-  - THINK: Analyze via fr3k-think
-  - PLAN: Store decisions via hey-fr3k
-  - BUILD: Create tools via md-mcp if needed
-  - EXECUTE: Implement the solution
-  - VERIFY: Test and validate
-  - LEARN: Store learnings + trigger self-improvement via pantheon
+Say: `Run the 7-phase algorithm on: [task]`
 
-**Voice Notifications Enabled:** You'll hear phase completions and important events.
-
-**Telegram Integration:** Send /status, /ask, /memory commands to your bot.
-
-**System Status:** Check with `fr3k-status` command.
-
-**Your task:** [Describe what you want to accomplish]
-
-The system will now use all MCP servers, self-improvement loops, and notifications to complete your task autonomously.
+Each phase will use MCP servers automatically and trigger self-improvement in LEARN phase.
 
 ---
 
-## 🔑 Required API Keys
-
-| Service | Purpose | Get From |
-|---------|---------|----------|
-| **Anthropic** | Claude Code / Claude models | [console.anthropic.com](https://console.anthropic.com/) |
-| **Telegram Bot** | Bot communication | [@BotFather](https://t.me/botfather) |
-| **Telegram User ID** | User verification | [@userinfobot](https://t.me/userinfobot) |
-
-### Optional APIs
-
-- **ElevenLabs** - Voice responses ([elevenlabs.io](https://elevenlabs.io))
-- **Google Gemini** - Voice transcription + Gemini CLI ([ai.google.dev](https://ai.google.dev))
-- **Supabase** - Memory persistence ([supabase.com](https://supabase.com))
-- **OpenAI** - For OpenCode GPT models ([platform.openai.com](https://platform.openai.com))
-
----
-
-## 🏗️ Multi-CLI Architecture
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    FR3K MULTI-CLI ARCHITECTURE                              │
+│                    FR3K AUTONOMOUS ARCHITECTURE                           │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                  │
@@ -273,252 +371,147 @@ The system will now use all MCP servers, self-improvement loops, and notificatio
 │                    └──────┬───────┘                                       │
 │                           │                                                │
 │                    ┌──────┴────────┐                                     │
-│                    │               │                                     │
-│         ┌──────────┴──┐     ┌──────┴───────┐     ┌──────────┐            │
-│         │ 7-PHASE     │     │   101       │     │  VOICE   │            │
-│         │ ALGORITHM   │     │   LOOPS     │     │  SERVER  │            │
-│         └─────────────┘     └─────────────┘     │──────────│            │
-│                                             ┌────┴───────┐            │
-│                                        ┌────┴────┐      │            │
-│                                        │TELEGRAM │      │            │
-│                                        │ RELAY   │      │            │
-│                                        └─────────┘      │            │
-│                                                          │            │
-└──────────────────────────────────────────────────────────┴────────────┘
+│                    │ 7-PHASE      │                                     │
+│                    │ ALGORITHM    │                                     │
+│                    └──────┬────────┘                                     │
+│                           │                                                │
+│         ┌─────────────────┼─────────────────┐                        │
+│         ▼                 ▼                 ▼                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                │
+│  │  101 LOOPS  │  │ NOTIFICATIONS│  │MEMORY SYSTEM│                │
+│  └─────────────┘  │ (Voice+TG)   │  │  (hey-fr3k) │                │
+│                  └─────────────┘  └─────────────┘                │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📖 Usage
+## 🎓 Use Cases
 
-### Starting the System
+### Software Development
+- Context-aware code generation
+- Architecture decision documentation
+- Automated refactoring suggestions
+- Bug detection and fixing
 
-```bash
-# Start all components
-fr3k-start
+### Data Analysis
+- Persistent analysis patterns
+- Reusable data transformations
+- Automated insight generation
+- Dataset memory for recurring work
 
-# Or start individually:
-cd voice-server && bun server.ts                    # Terminal 1: Voice (port 8888)
-cd telegram-relay && bun run start                   # Terminal 2: Telegram
-cd autoimprove-101-loops && bun autonomous/self-improvement-loop.ts  # Terminal 3: Loops
+### Content Creation
+- Style consistency tracking
+- Template generation via md-mcp
+- Quality improvement loops
+- Audience-specific adaptation
 
-# Terminal 4: Your chosen CLI
-claude      # Claude Code
-opencode    # OpenCode (recommended - free tier)
-gemini      # Gemini CLI (100M context)
-```
+### Business Automation
+- Workflow optimization
+- Integration automation
+- Process documentation
+- Efficiency monitoring
 
-### Using with Your Chosen CLI
-
-All CLIs work with FR3K's MCP servers:
-
-```bash
-# Start your CLI
-claude      # or: opencode, gemini
-
-# List available MCP tools (works in all CLIs)
-"List all available MCP tools"
-
-# Use hey-fr3k for context
-"Recall recent context about feature X"
-
-# Use fr3k-think for analysis
-"Think through this problem step by step"
-
-# Use md-mcp to create tools
-"Create a tool called MyTool that does X"
-
-# Use pantheon for self-improvement
-"Analyze how I can improve my workflow"
-```
-
-### Telegram Interface Commands
-
-- `/status` - System status (uses hey-fr3k for context)
-- `/ask <query>` - Run through 7-phase algorithm with MCP
-- `/voice <message>` - Get voice response
-- `/memory <key> <value>` - Store via hey-fr3k
-- `/recall <key>` - Retrieve via hey-fr3k
+### Learning & Education
+- Knowledge base building
+- Concept linking across sessions
+- Personalized learning paths
+- Adaptive explanations
 
 ---
 
-## 🧠 Autoimprove 101 Loops
+## 🛠️ Advanced Configuration
 
-Self-improving system with 100+ completed iterations:
+### Autonomy Levels
 
-- **Entry Point:** `autoimprove-101-loops/autonomous/self-improvement-loop.ts`
-- **MCP Integration:** Uses hey-fr3k, fr3k-think, pantheon
-- **Documentation:** `autoimprove-101-loops/100-LOOPS-COMPLETE.md`
+| Level | Behavior |
+|-------|----------|
+| **1** | Manual - Explicit approval for everything |
+| **2** | Cautious - Minor changes OK, major require approval |
+| **3** | Balanced - Moderate changes OK, major require approval |
+| **4** | Aggressive - Most changes autonomous, critical require approval |
+| **5** | Full Auto - Complete autonomy, just notifies you |
 
-### Running the Loops
+### Communication Styles
 
-```bash
-# Interactive
-cd autoimprove-101-loops
-bun autonomous/self-improvement-loop.ts
+- **Concise** - Just the facts, minimal fluff
+- **Balanced** - Clear explanations, not too verbose
+- **Detailed** - Thorough explanations with context
+- **Educational** - Teaches while helping
 
-# As daemon
-sudo systemctl start fr3k-daemon
-```
+### Notification Channels
 
----
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [README.md](README.md) | This file |
-| [MULTI-CLI-SUPPORT.md](docs/MULTI-CLI-SUPPORT.md) | Multi-CLI compatibility guide |
-| [INTEGRATION-GUIDE.md](docs/INTEGRATION-GUIDE.md) | Complete unified integration |
-| [MCP-INSTALLATION.md](setup/MCP-INSTALLATION.md) | MCP server setup |
-| [REQUIREMENTS.md](setup/REQUIREMENTS.md) | System requirements |
-| [100-LOOPS-COMPLETE.md](autoimprove-101-loops/autonomous/) | Loop documentation |
-| [hooks/README.md](claude-hooks/README.md) | Hook system reference |
+Configure independently:
+- **Voice** (TTS) - Spoken announcements
+- **Telegram** - Mobile updates
+- **Desktop** - System notifications
 
 ---
 
-## 🛠️ Configuration
-
-### Environment Variables (.env)
-
-```bash
-# Anthropic API (required for Claude Code/Claude models)
-ANTHROPIC_AUTH_TOKEN=sk-ant-xxxxx
-
-# Telegram (required)
-TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-TELEGRAM_USER_ID=123456789
-
-# Voice Server
-PAI_VOICE_SERVER=http://localhost:8888
-
-# Data directories
-FR3K_DATA_DIR=~/.fr3k
-PAI_DIR=~/.claude
-```
-
-### MCP Configuration (All CLIs)
-
-MCP servers are configured automatically during installation. Manual config in `~/.claude/settings.json` (Claude Code/OpenCode) or `~/.gemini/settings.json` (Gemini CLI):
-
-```json
-{
-  "mcpServers": {
-    "md-mcp": {"command": "npx", "args": ["-y", "md-mcp"]},
-    "fr3k-think": {"command": "npx", "args": ["-y", "fr3k-think"]},
-    "unified-pantheon-mcp": {"command": "npx", "args": ["-y", "unified-pantheon-mcp"]},
-    "hey-fr3k": {"command": "npx", "args": ["-y", "hey-fr3k"]}
-  }
-}
-```
-
----
-
-## 🐛 Troubleshooting
-
-### CLI-Specific Issues
-
-**Claude Code not working:**
-```bash
-npm install -g @anthropic-ai/claude-code
-claude --version
-```
-
-**OpenCode not working:**
-```bash
-npm install -g opencode-ai
-bunx oh-my-opencode install
-opencode --version
-```
-
-**Gemini CLI not working:**
-```bash
-npm install -g @google/gemini-cli
-gemini  # Follow Google login
-```
+## 🔍 Troubleshooting
 
 ### MCP Servers Not Working
 
 ```bash
-# Test each server
+# Test individually
 npx -y md-mcp --version
 npx -y fr3k-think --version
 npx -y unified-pantheon-mcp --version
 npx -y hey-fr3k --version
+
+# Clear npx cache if needed
+rm -rf ~/.npm/_npx
 ```
 
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| Port 8888 in use | `lsof -ti:8888 \| xargs kill -9` |
-| CLI not found | Reinstall with npm install -g |
-| MCP tools missing | Test MCP servers with npx |
-| Bot not responding | Check `.env` tokens |
-| Hooks failing | Check `~/.claude/hooks/` permissions |
-
-### Logs
-
-- System: `~/.fr3k/logs/`
-- Claude: `~/.claude/transcripts/`
-- Loops: `autoimprove-101-loops/logs/`
-- hey-fr3k DB: `~/.hey-fr3k/tasks.db`
-
----
-
-## 📊 System Stats
-
-| Metric | Value |
-|--------|-------|
-| Version | 2026.02.28 (Multi-CLI) |
-| Supported CLIs | 3 |
-| MCP Servers | 4 (universal) |
-| Loops Completed | 101+ |
-| Skills | 20+ |
-| Hooks | 14 |
-| Files | 1200+ |
-| Lines | 224K+ |
-| Memory (idle) | ~330MB |
-| Memory (active) | ~500MB |
-
----
-
-## 🔄 Updates
+### Services Not Starting
 
 ```bash
-# In Claude Code/OpenCode/Gemini CLI
-/upgrade system
+# Check service status
+sudo systemctl status fr3k-voice-server
+sudo systemctl status fr3k-telegram-relay
+sudo systemctl status fr3k-daemon
 
-# Or manually
-git pull origin master
-./setup/install.sh
+# View logs
+sudo journalctl -u fr3k-voice-server -f
+```
+
+### Verification Fails
+
+```bash
+# Run diagnostics
+./setup/verify-system.sh
+
+# Fix common issues
+sudo apt-get install nodejs npm bun  # Missing dependencies
 ```
 
 ---
 
 ## 🤝 Contributing
 
-This is a personal AI infrastructure system. Feel free to:
-- Fork and customize
-- Submit issues
-- Suggest improvements
+FR3K is designed to be extended and improved. The 101 self-improvement loops will automatically suggest enhancements based on your usage patterns.
+
+To contribute manually:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ---
 
-## 📜 License
+## 📄 License
 
-Use responsibly and in accordance with API terms of service.
+MIT License - See LICENSE file for details
 
 ---
 
-<div align="center">
+## 🙏 Acknowledgments
 
-### **[⭐ Star](https://github.com/fr3kstyle/fr3k)** • **[🐛 Issues](https://github.com/fr3kstyle/fr3k/issues)** • **[📖 Wiki](https://github.com/fr3kstyle/fr3k/wiki)**
+Built as part of the FR3K autonomous AI infrastructure project.
 
-**Built with ❤️ by FR3K • 2026**
+---
 
-**Supports:** Claude Code • OpenCode • Gemini CLI
-
-**Requirements:** 4 MCP Servers • Node.js 18+ • Bun • Your choice of CLI
-
-</div>
+**Status:** Production Ready ✅
+**Version:** 2026.02.28
+**Repository:** https://github.com/fr3kstyle/fr3k
