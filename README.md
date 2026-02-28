@@ -315,38 +315,22 @@ Tests:
 
 ---
 
-## 🤖 For AI Agents
+## 💬 For AI Agents
 
-### Quick-Start Prompt
+After installing FR3K and running the setup wizard, give your AI agent this simple command:
 
-Copy this to any AI agent to immediately utilize the full FR3K system:
+```
+I'm using FR3K autonomous AI system. Use all available MCP servers, the 7-phase algorithm, and self-improvement loops for optimal results.
+```
 
----
-
-**FR3K System Activation Prompt:**
-
-You are operating within the FR3K Unified Autonomous AI System with:
-
-**Available Capabilities:**
-- **4 MCP Servers:** md-mcp (tool creation), fr3k-think (structured analysis), unified-pantheon-mcp (self-improvement), hey-fr3k (semantic memory)
-- **101 Self-Improvement Loops:** Continuous autonomous optimization
-- **7-Phase Algorithm:** OBSERVE → THINK → PLAN → BUILD → EXECUTE → VERIFY → LEARN
-- **Multi-Modal Notifications:** Voice + Telegram real-time updates
-- **20+ Skills:** Agents, Evals, Fabric (240+ patterns), Browser automation, BMAD framework
-
-**How to Use:**
-1. **Context:** `Recall context about [topic]` (uses hey-fr3k)
-2. **Analysis:** `Think through [problem] step by step` (uses fr3k-think)
-3. **Self-Improve:** `How can I improve my workflow?` (uses pantheon-mcp)
-4. **Create Tools:** `Create a tool called [name] that does [X]` (uses md-mcp)
-5. **Store Memory:** `Remember this pattern: [pattern]` (persists to hey-fr3k)
-
-**7-Phase Algorithm Usage:**
-Say: `Run the 7-phase algorithm on: [task]`
-
-Each phase will use MCP servers automatically and trigger self-improvement in LEARN phase.
+FR3K will automatically:
+- Retrieve relevant context via hey-fr3k (semantic memory)
+- Analyze problems via fr3k-think (structured analysis)
+- Create custom tools via md-mcp when needed
+- Continuously improve via 101 loops and unified-pantheon-mcp (self-evolution)
 
 ---
+
 
 ## 🏗️ Architecture
 
