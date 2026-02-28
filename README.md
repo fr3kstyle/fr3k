@@ -121,11 +121,23 @@ See [MCP-INSTALLATION.md](setup/MCP-INSTALLATION.md) for detailed setup.
 # Storage: 20GB+ recommended
 ```
 
-### One-Line Installation
+### One-Line Installation (with Personalized Setup)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fr3kstyle/fr3k/master/setup/install.sh | bash
 ```
+
+**The installation includes an interactive setup wizard that will:**
+- 🎯 Understand your goals and customize FR3K for your use case
+- 🔧 Configure autonomy level (1-5) based on your experience
+- 📱 Setup voice & Telegram notifications with your preferred style
+- 🗣️ Configure communication style (concise, friendly, detailed, educational)
+- 🎨 Set preferences for profanity filter, humor level, emoji usage
+- 💾 Create personalized workspace configuration
+- 🧪 Test autonomous features with the 7-phase algorithm
+- 📊 Run first self-improvement analysis and get recommendations
+- 🚀 Offer to install background autonomous services
+- 📝 Generate your personalized AI agent quick-start prompt
 
 ### Manual Installation
 

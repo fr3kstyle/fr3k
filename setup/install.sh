@@ -527,3 +527,36 @@ echo "  Integration Guide: docs/INTEGRATION-GUIDE.md"
 echo "  Multi-CLI Support: docs/MULTI-CLI-SUPPORT.md"
 echo "  Requirements: setup/REQUIREMENTS.md"
 echo ""
+
+# ============================================
+# FIRST RUN SETUP WIZARD
+# ============================================
+echo ""
+echo "╔═══════════════════════════════════════════════════════════════════╗"
+echo "║                                                                 ║"
+echo "║     🎯 PERSONALIZED SETUP - FIRST RUN WIZARD                    ║"
+echo "║                                                                 ║"
+echo "║     We'll now configure FR3K specifically for YOU               ║"
+echo "║     • Understand your goals and preferences                     ║"
+echo "║     • Test autonomous features with 7-phase algorithm            ║"
+echo "║     • Setup notifications (voice, Telegram)                      ║"
+echo "║     • Configure background services                              ║"
+echo "║     • Create your personalized AI prompt                         ║"
+echo "║                                                                 ║"
+echo "╚═══════════════════════════════════════════════════════════════════╝"
+echo ""
+
+read -p "Launch personalized setup wizard now? [Y/n]: " run_wizard
+run_wizard=${run_wizard:-Y}
+
+if [[ "$run_wizard" =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "🚀 Launching First Run Setup Wizard..."
+    echo ""
+    exec "${SCRIPT_DIR}/first-run-setup.sh"
+else
+    echo ""
+    echo -e "${YELLOW}Skipped first-run setup${NC}"
+    echo "You can run it later with: ./setup/first-run-setup.sh"
+    echo ""
+fi
